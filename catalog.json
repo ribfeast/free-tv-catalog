@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "updated": "2026-08-19",
+  "channels": [
+    {
+      "id": "nasa_tv",
+      "name": "NASA TV",
+      "category": "Science",
+      "streamUrl": "https://ntv1.akamaihd.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8"
+    },
+    {
+      "id": "nasa_media",
+      "name": "NASA Media",
+      "category": "Live",
+      "streamUrl": "https://ntv2.akamaihd.net/hls/live/2013923/NASA-NTV2-HLS/master.m3u8"
+    },
+    {
+      "id": "big_buck_bunny",
+      "name": "Big Buck Bunny",
+      "category": "Animation",
+      "streamUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    },
+    {
+      "id": "sintel",
+      "name": "Sintel",
+      "category": "Fantasy",
+      "streamUrl": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+    },
+    {
+      "id": "tears_of_steel",
+      "name": "Tears of Steel",
+      "category": "Sci-Fi",
+      "streamUrl": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"
+    },
+    {
+      "id": "elephants_dream",
+      "name": "Elephants Dream",
+      "category": "Animation",
+      "streamUrl": "https://test-streams.mux.dev/test_001/stream.m3u8"
+    },
+    {
+      "id": "spring",
+      "name": "Spring",
+      "category": "Animation",
+      "streamUrl": "https://test-streams.mux.dev/pts_shift/master.m3u8"
+    },
+    {
+      "id": "cosmos_laundromat",
+      "name": "Cosmos Laundromat",
+      "category": "Comedy",
+      "streamUrl": "https://test-streams.mux.dev/bbbAES/playlists/sample_aes.m3u8"
+    },
+    {
+      "id": "apple_test",
+      "name": "Apple Test",
+      "category": "Demo",
+      "streamUrl": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+    }
+  ]
+}
