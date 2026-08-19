@@ -21,6 +21,21 @@ jsonlint.com) to make sure it's still valid — one missing comma breaks the fil
 If the file is ever broken or unreachable, the app safely keeps the last good
 list, so a mistake won't take the channels down.
 
+## ⚠️ Always check the streams still work
+
+Streams die without warning, and the app can't tell you — a dead channel just
+shows a spinner. Run this before committing a change, and now and then anyway:
+
+```bash
+bash check-streams.sh
+```
+
+**Why it checks two levels:** a dead feed can still return a perfectly healthy-looking
+master playlist (HTTP 200) from a CDN's cache while everything behind it is gone.
+Four channels sat dead in this catalogue for exactly that reason — the top-level
+URL looked fine. The script always follows a *variant* playlist, which is the only
+check that proves a stream is really alive.
+
 ## The format
 
 ```jsonc

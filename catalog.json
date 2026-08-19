@@ -1,30 +1,13 @@
 {
-  "version": 1,
+  "version": 2,
   "updated": "2026-08-19",
+  "_comment": "Placeholder demo content only — Creative Commons (Blender open movies) and official developer test streams. NOT launch channels. Every entry below was deep-verified: master playlist AND a variant playlist both return a live manifest. See README before adding anything.",
   "channels": [
-    {
-      "id": "nasa_tv",
-      "name": "NASA TV",
-      "category": "Science",
-      "streamUrl": "https://ntv1.akamaihd.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8"
-    },
-    {
-      "id": "nasa_media",
-      "name": "NASA Media",
-      "category": "Live",
-      "streamUrl": "https://ntv2.akamaihd.net/hls/live/2013923/NASA-NTV2-HLS/master.m3u8"
-    },
     {
       "id": "big_buck_bunny",
       "name": "Big Buck Bunny",
       "category": "Animation",
       "streamUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
-    },
-    {
-      "id": "sintel",
-      "name": "Sintel",
-      "category": "Fantasy",
-      "streamUrl": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
     },
     {
       "id": "tears_of_steel",
@@ -43,12 +26,6 @@
       "name": "Spring",
       "category": "Animation",
       "streamUrl": "https://test-streams.mux.dev/pts_shift/master.m3u8"
-    },
-    {
-      "id": "cosmos_laundromat",
-      "name": "Cosmos Laundromat",
-      "category": "Comedy",
-      "streamUrl": "https://test-streams.mux.dev/bbbAES/playlists/sample_aes.m3u8"
     },
     {
       "id": "apple_test",
