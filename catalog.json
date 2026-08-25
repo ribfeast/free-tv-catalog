@@ -1,37 +1,384 @@
-{
-  "version": 2,
-  "updated": "2026-08-19",
-  "_comment": "Placeholder demo content only — Creative Commons (Blender open movies) and official developer test streams. NOT launch channels. Every entry below was deep-verified: master playlist AND a variant playlist both return a live manifest. See README before adding anything.",
-  "channels": [
-    {
-      "id": "big_buck_bunny",
-      "name": "Big Buck Bunny",
-      "category": "Animation",
-      "streamUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
-    },
-    {
-      "id": "tears_of_steel",
-      "name": "Tears of Steel",
-      "category": "Sci-Fi",
-      "streamUrl": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"
-    },
-    {
-      "id": "elephants_dream",
-      "name": "Elephants Dream",
-      "category": "Animation",
-      "streamUrl": "https://test-streams.mux.dev/test_001/stream.m3u8"
-    },
-    {
-      "id": "spring",
-      "name": "Spring",
-      "category": "Animation",
-      "streamUrl": "https://test-streams.mux.dev/pts_shift/master.m3u8"
-    },
-    {
-      "id": "apple_test",
-      "name": "Apple Test",
-      "category": "Demo",
-      "streamUrl": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
-    }
-  ]
+﻿{
+    "version":  4,
+    "updated":  "2026-08-25",
+    "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. \u0027Space\u0027 is our own scheduled channel (kind=scheduled): a published running order the app resolves to whatever should be on air now — built from NASA\u0027s media library, a US federal government work and public domain by statute, fetched from nasa.gov so provenance is guaranteed. NASA\u0027s insignia is NOT public domain: keep it out of channel artwork, and nothing may imply NASA endorses the app. Other entries are Creative Commons (Blender open movies) or official developer test streams. Run check-streams.sh before committing.",
+    "channels":  [
+                     {
+                         "id":  "nasa",
+                         "name":  "Space",
+                         "category":  "Science",
+                         "kind":  "scheduled",
+                         "schedule":  {
+                                          "epoch":  "2026-08-20T00:00:00Z",
+                                          "items":  [
+                                                        {
+                                                            "title":  "Apollo Digest Series: Spacecraft for Apollo",
+                                                            "year":  2021,
+                                                            "seconds":  281,
+                                                            "url":  "https://images-assets.nasa.gov/video/NDTV000908_Apollo_Digest_Series_Spacecraft%20for%20Apollo/NDTV000908_Apollo_Digest_Series_Spacecraft%20for%20Apollo~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Official Celebration of Apollo 17 50th Anniversary",
+                                                            "year":  2022,
+                                                            "seconds":  212,
+                                                            "url":  "https://images-assets.nasa.gov/video/Official%20Celebration%20of%20Apollo%2017%2050th%20Anniversary/Official%20Celebration%20of%20Apollo%2017%2050th%20Anniversary~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Remembering Apollo 15 Astronaut Al Worden",
+                                                            "year":  2020,
+                                                            "seconds":  131,
+                                                            "url":  "https://images-assets.nasa.gov/video/al%20worden_fixed/al%20worden_fixed~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Apollo 14 Launch Coverage",
+                                                            "year":  2021,
+                                                            "seconds":  188,
+                                                            "url":  "https://images-assets.nasa.gov/video/Apollo%2014%20Launch%20Coverage/Apollo%2014%20Launch%20Coverage~orig.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Apollo 1 Monument Dedicated at Arlington National Cemetery",
+                                                            "year":  2022,
+                                                            "seconds":  1171,
+                                                            "url":  "https://images-assets.nasa.gov/video/Apollo%201%20Monument%20Dedicated%20at%20Arlington%20National%20Cemetery/Apollo%201%20Monument%20Dedicated%20at%20Arlington%20National%20Cemetery~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Apollo 14 ‘A Wild Place Up Here’",
+                                                            "year":  2021,
+                                                            "seconds":  310,
+                                                            "url":  "https://images-assets.nasa.gov/video/Apollo%2014%20%E2%80%98A%20Wild%20Place%20Up%20Here%E2%80%99/Apollo%2014%20%E2%80%98A%20Wild%20Place%20Up%20Here%E2%80%99~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Apollo Digest Series: Testing Apollo",
+                                                            "year":  2021,
+                                                            "seconds":  328,
+                                                            "url":  "https://images-assets.nasa.gov/video/NDTV000907_Apollo_Digest_Series_Testing_Apollo/NDTV000907_Apollo_Digest_Series_Testing_Apollo~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Olympics on the International Space Station",
+                                                            "year":  2024,
+                                                            "seconds":  133,
+                                                            "url":  "https://images-assets.nasa.gov/video/Olympics%20on%20the%20International%20Space%20Station/Olympics%20on%20the%20International%20Space%20Station~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "#AskNASA - What is the International Space Station?",
+                                                            "year":  2019,
+                                                            "seconds":  275,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2019_1118_AskNASA%20-%20What%20is%20the%20International%20Space%20Station/NHQ_2019_1118_AskNASA%20-%20What%20is%20the%20International%20Space%20Station~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Earth Views from the International Space Station",
+                                                            "year":  2019,
+                                                            "seconds":  200,
+                                                            "url":  "https://images-assets.nasa.gov/video/Earth%20Views%20from%20the%20International%20Space%20Station/Earth%20Views%20from%20the%20International%20Space%20Station~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "ISS Project VEG-01B - Video 8",
+                                                            "year":  2015,
+                                                            "seconds":  214,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-20150715-MH-ISS01_0008-ISS_Project_VEG-01B-3262103/KSC-20150715-MH-ISS01_0008-ISS_Project_VEG-01B-3262103~orig.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "ISS Project VEG-01B - Video 3",
+                                                            "year":  2015,
+                                                            "seconds":  1241,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-20150715-MH-ISS01_0003-ISS_Project_VEG-01B-3262103/KSC-20150715-MH-ISS01_0003-ISS_Project_VEG-01B-3262103~orig.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "ISS Project VEG-01B - Video 1",
+                                                            "year":  2015,
+                                                            "seconds":  1763,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-20150715-MH-ISS01_0001-ISS_Project_VEG-01B-3262103/KSC-20150715-MH-ISS01_0001-ISS_Project_VEG-01B-3262103~orig.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "ISS Project VEG-01B - Video 7",
+                                                            "year":  2015,
+                                                            "seconds":  682,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-20150715-MH-ISS01_0007-ISS_Project_VEG-01B-3262103/KSC-20150715-MH-ISS01_0007-ISS_Project_VEG-01B-3262103~orig.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NASA Provides First Front-Row Seat to Perseverance Rover’s Landing on Mars",
+                                                            "year":  2021,
+                                                            "seconds":  569,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2021_0222_VF_NASA%20Provides%20First%20Front-Row%20Seat%20to%20Perseverance%20Rover%E2%80%99s%20Landing%20on%20Mars/NHQ_2021_0222_VF_NASA%20Provides%20First%20Front-Row%20Seat%20to%20Perseverance%20Rover%E2%80%99s%20Landing%20on%20Mars~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Perseverance Rover’s Descent and Touchdown on Mars: Onboard Camera Views",
+                                                            "year":  2021,
+                                                            "seconds":  205,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20210222-M2020f-0001-Perseverance%20Rover%E2%80%99s%20Descent%20and%20Touchdown%20on%20Mars/JPL-20210222-M2020f-0001-Perseverance%20Rover%E2%80%99s%20Descent%20and%20Touchdown%20on%20Mars~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NASA TV Video File Package-NASA Announces Mars 2020 Rover Name \u0026 Naming Contest Winner",
+                                                            "year":  2020,
+                                                            "seconds":  411,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2020_0043_VF_NASA%20Announces%20Mars%202020%20Rover%20Name%20%26%20Naming%20Contest%20Winner/NHQ_2020_0043_VF_NASA%20Announces%20Mars%202020%20Rover%20Name%20%26%20Naming%20Contest%20Winner~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Perseverance Rover Zooms in on Ancient Mars River",
+                                                            "year":  2023,
+                                                            "seconds":  180,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20231227-M2020f-0001-Perseverance%20Rover%20Zooms%20in%20on%20Ancient%20Mars%20River/JPL-20231227-M2020f-0001-Perseverance%20Rover%20Zooms%20in%20on%20Ancient%20Mars%20River~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Shake, Rattle and Roll: Testing NASA’s Mars 2020 Perseverance Rover",
+                                                            "year":  2020,
+                                                            "seconds":  148,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20200518-M2020f-0001-Shake%20Rattle%20and%20Roll%20Testing%20NASAs%20Mars%202020%20Perseverance%20Rover/JPL-20200518-M2020f-0001-Shake%20Rattle%20and%20Roll%20Testing%20NASAs%20Mars%202020%20Perseverance%20Rover~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Twin of NASA’s Perseverance Mars Rover Now on the Move",
+                                                            "year":  2020,
+                                                            "seconds":  140,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20201006-M2020f-0001-Twin%20Rover%20Gets%20to%20Work/JPL-20201006-M2020f-0001-Twin%20Rover%20Gets%20to%20Work~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Our next Mars Rover gets closer to launch on This Week @NASA – July 10, 2020",
+                                                            "year":  2020,
+                                                            "seconds":  172,
+                                                            "url":  "https://images-assets.nasa.gov/video/Our%20next%20Mars%20Rover%20gets%20closer%20to%20launch%20on%20This%20Week%20%40NASA%20%E2%80%93%20July%2010%2C%202020/Our%20next%20Mars%20Rover%20gets%20closer%20to%20launch%20on%20This%20Week%20%40NASA%20%E2%80%93%20July%2010%2C%202020~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Hubble\u0027s 29th Anniversary",
+                                                            "year":  2019,
+                                                            "seconds":  182,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20190424_HST_m13189_Hubble29/GSFC_20190424_HST_m13189_Hubble29~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "An Exoplanet Discovery from Hubble on This Week @NASA – September 13, 2019",
+                                                            "year":  2019,
+                                                            "seconds":  231,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2019_0913_An%20Exoplanet%20Discovery%20from%20Hubble%20on%20This%20Week%20%40NASA%20%E2%80%93%20September%2013%2C%202019/NHQ_2019_0913_An%20Exoplanet%20Discovery%20from%20Hubble%20on%20This%20Week%20%40NASA%20%E2%80%93%20September%2013%2C%202019~medium.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "#AskNASA┃ What is Hubble revealing about the universe?",
+                                                            "year":  2020,
+                                                            "seconds":  340,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Hubble Career Profiles: Jackie Townsend",
+                                                            "year":  2009,
+                                                            "seconds":  167,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20090727_Hubble_m10474_Jackie_Townsend/GSFC_20090727_Hubble_m10474_Jackie_Townsend~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Hubble and Going Forward to the Moon",
+                                                            "year":  2019,
+                                                            "seconds":  470,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20190715_HST_m13258_Moon/GSFC_20190715_HST_m13258_Moon~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Hubble Tool Time Episode 1 - Astronaut Training",
+                                                            "year":  2019,
+                                                            "seconds":  266,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20190416_HST_m13175_TTAstronautTraining/GSFC_20190416_HST_m13175_TTAstronautTraining~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Hubble Career Profiles: Benjamin Reed",
+                                                            "year":  2009,
+                                                            "seconds":  175,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20090727_Hubble_m10474_Ben_Reed/GSFC_20090727_Hubble_m10474_Ben_Reed~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis II Moon Mission Complete!",
+                                                            "year":  2026,
+                                                            "seconds":  213,
+                                                            "url":  "https://images-assets.nasa.gov/video/ARTEMIS%20II%20Mission%20Recap_ANB_V3/ARTEMIS%20II%20Mission%20Recap_ANB_V3~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis II Rollout Timelapse",
+                                                            "year":  2026,
+                                                            "seconds":  262,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-01172026-Artemis%20II_Rollout_Timelapse/KSC-01172026-Artemis%20II_Rollout_Timelapse~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis Media Resource-Interview Soundbites",
+                                                            "year":  2019,
+                                                            "seconds":  388,
+                                                            "url":  "https://images-assets.nasa.gov/video/Artemis%20Media%20Resource-Interview%20Soundbites/Artemis%20Media%20Resource-Interview%20Soundbites~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "#AskNASA - What Is Artemis?",
+                                                            "year":  2019,
+                                                            "seconds":  178,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2019_0923_AskNASA%20-%20What%20is%20Artemis/NHQ_2019_0923_AskNASA%20-%20What%20is%20Artemis~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis Media Resource-Broll-update",
+                                                            "year":  2019,
+                                                            "seconds":  510,
+                                                            "url":  "https://images-assets.nasa.gov/video/Artemis%20Media%20Resource-Broll-update/Artemis%20Media%20Resource-Broll-update~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis-I_OrionLiftFromFASTcell4k",
+                                                            "year":  2019,
+                                                            "seconds":  821,
+                                                            "url":  "https://images-assets.nasa.gov/video/Artemis-I_OrionLiftFromFASTcell4k/Artemis-I_OrionLiftFromFASTcell4k~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Orion Fuels Artemis",
+                                                            "year":  2019,
+                                                            "seconds":  171,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2019m000800_Orion%20Fuels%20Artemis/jsc2019m000800_Orion%20Fuels%20Artemis~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NISAR: Tracking Earth’s Changes From Space (Mission Overview)",
+                                                            "year":  2024,
+                                                            "seconds":  182,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20240109-NISARf-0001-Tracking%20Earth\u0027s%20Changes%20from%20Space/JPL-20240109-NISARf-0001-Tracking%20Earth\u0027s%20Changes%20from%20Space~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Safe Return to Earth from the Space Station on This Week @NASA – April 17, 2021",
+                                                            "year":  2021,
+                                                            "seconds":  246,
+                                                            "url":  "https://images-assets.nasa.gov/video/Safe%20Return%20to%20Earth%20from%20the%20Space%20Station%20on%20This%20Week%20%40NASA%20%E2%80%93%20April%2017%2C%202021/Safe%20Return%20to%20Earth%20from%20the%20Space%20Station%20on%20This%20Week%20%40NASA%20%E2%80%93%20April%2017%2C%202021~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NASA Science Live: Landsat - A Legacy of Seeing Earth from Space [Episode 28]",
+                                                            "year":  2021,
+                                                            "seconds":  1741,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20210930_NSL_Ep38_Landsat/GSFC_20210930_NSL_Ep38_Landsat~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "U.S. Astronaut, Crewmates Return to Earth from the International Space Station",
+                                                            "year":  2024,
+                                                            "seconds":  1217,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2024m000163_Soyuz_MS-25_Landing_Highlights/jsc2024m000163_Soyuz_MS-25_Landing_Highlights~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Video File Russian Trio Returns To Earth From The International Space Station",
+                                                            "year":  2021,
+                                                            "seconds":  602,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2021m000225-VF_Russian_Trio_Returns_To_Earth_From_The_International_Space_Station/jsc2021m000225-VF_Russian_Trio_Returns_To_Earth_From_The_International_Space_Station~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NISAR Mission Video",
+                                                            "year":  2020,
+                                                            "seconds":  242,
+                                                            "url":  "https://images-assets.nasa.gov/video/JPL-20201217-NISARs-0001-NISAR%20Mission%20Video/JPL-20201217-NISARs-0001-NISAR%20Mission%20Video~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "NASA ScienceCasts: Station Science 101 - Earth Observation from the Space Station",
+                                                            "year":  2024,
+                                                            "seconds":  151,
+                                                            "url":  "https://images-assets.nasa.gov/video/322_SS101-CEO/322_SS101-CEO~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "James Webb Space Telescope: An Overview",
+                                                            "year":  2019,
+                                                            "seconds":  166,
+                                                            "url":  "https://images-assets.nasa.gov/video/James_Webb_Space_Telescope__An_Overview_1080/James_Webb_Space_Telescope__An_Overview_1080~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "The James Webb Space Telescope Mission Overview",
+                                                            "year":  2020,
+                                                            "seconds":  223,
+                                                            "url":  "https://images-assets.nasa.gov/video/Mission_Overview_MASTER-h264/Mission_Overview_MASTER-h264~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Webb Telescope Milestone: Completion of Telescope Element",
+                                                            "year":  2019,
+                                                            "seconds":  261,
+                                                            "url":  "https://images-assets.nasa.gov/video/Webb_Telescope_How_Did_We_Get_Here_Milestone-h264/Webb_Telescope_How_Did_We_Get_Here_Milestone-h264~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Webb Telescope Optical Telescope Element Engineering History Presentation Supporting Video",
+                                                            "year":  2019,
+                                                            "seconds":  206,
+                                                            "url":  "https://images-assets.nasa.gov/video/OTE-Engineering-History/OTE-Engineering-History~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Webb Telescope Launch and Deploy (12-minute)",
+                                                            "year":  2019,
+                                                            "seconds":  720,
+                                                            "url":  "https://images-assets.nasa.gov/video/1511201_JWST_L-D_Apvd_Final/1511201_JWST_L-D_Apvd_Final~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Top Ten Facts about the James Webb Space Telescope",
+                                                            "year":  2019,
+                                                            "seconds":  180,
+                                                            "url":  "https://images-assets.nasa.gov/video/12395-Top_Ten_JWST_Facts_H264/12395-Top_Ten_JWST_Facts_H264~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Webb Telescope Structure Practice Move 7-14-16",
+                                                            "year":  2019,
+                                                            "seconds":  132,
+                                                            "url":  "https://images-assets.nasa.gov/video/OTIS_Practice_Move_7-14-17_Master_B_HD_H264/OTIS_Practice_Move_7-14-17_Master_B_HD_H264~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "GPM Launch and Deploy Animation: Launch",
+                                                            "year":  2012,
+                                                            "seconds":  122,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20121101_GPM_m11129_Launch/GSFC_20121101_GPM_m11129_Launch~medium.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis II launch Causeway Slow Motion wide",
+                                                            "year":  2026,
+                                                            "seconds":  527,
+                                                            "url":  "https://images-assets.nasa.gov/video/Causeway%20Main%20Launch%20dust%20removal/Causeway%20Main%20Launch%20dust%20removal~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "GPM Launch and Deploy Animation: Launch No Music",
+                                                            "year":  2012,
+                                                            "seconds":  122,
+                                                            "url":  "https://images-assets.nasa.gov/video/GSFC_20121101_GPM_m11129_Launch_nomusic/GSFC_20121101_GPM_m11129_Launch_nomusic~medium.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis I Launch (Press Site)",
+                                                            "year":  2022,
+                                                            "seconds":  342,
+                                                            "url":  "https://images-assets.nasa.gov/video/Artemis%20I%20Launch%202022%20CU%20tracking%20from%20Press%20Site_compressed/Artemis%20I%20Launch%202022%20CU%20tracking%20from%20Press%20Site_compressed~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Boeing CFT Rollout for Launch - DRONE",
+                                                            "year":  2024,
+                                                            "seconds":  213,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC-20240504-MH-MTD01-0001-Boeing_CFT_Rollout_for_Launch_DRONE-M6517/KSC-20240504-MH-MTD01-0001-Boeing_CFT_Rollout_for_Launch_DRONE-M6517~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Artemis II launch Causeway Slow-motion",
+                                                            "year":  2026,
+                                                            "seconds":  527,
+                                                            "url":  "https://images-assets.nasa.gov/video/KSC%20ART%20II%20Cause%20Way%20Launch%20low%20angle/KSC%20ART%20II%20Cause%20Way%20Launch%20low%20angle~large.mp4"
+                                                        },
+                                                        {
+                                                            "title":  "Ultimate Saturn V Launch w Enhanced Sound",
+                                                            "year":  2020,
+                                                            "seconds":  175,
+                                                            "url":  "https://images-assets.nasa.gov/video/Ultimate%20Saturn%20V%20Launch%20w%20Enhanced%20Sound/Ultimate%20Saturn%20V%20Launch%20w%20Enhanced%20Sound~large.mp4"
+                                                        }
+                                                    ]
+                                      }
+                     },
+                     {
+                         "id":  "big_buck_bunny",
+                         "name":  "Big Buck Bunny",
+                         "category":  "Animation",
+                         "streamUrl":  "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+                     },
+                     {
+                         "id":  "tears_of_steel",
+                         "name":  "Tears of Steel",
+                         "category":  "Sci-Fi",
+                         "streamUrl":  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"
+                     },
+                     {
+                         "id":  "elephants_dream",
+                         "name":  "Elephants Dream",
+                         "category":  "Animation",
+                         "streamUrl":  "https://test-streams.mux.dev/test_001/stream.m3u8"
+                     },
+                     {
+                         "id":  "spring",
+                         "name":  "Spring",
+                         "category":  "Animation",
+                         "streamUrl":  "https://test-streams.mux.dev/pts_shift/master.m3u8"
+                     },
+                     {
+                         "id":  "apple_test",
+                         "name":  "Apple Test",
+                         "category":  "Demo",
+                         "streamUrl":  "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+                     }
+                 ]
 }
