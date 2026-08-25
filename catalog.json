@@ -1,4 +1,4 @@
-﻿{
+{
     "version":  5,
     "updated":  "2026-08-25",
     "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. \u0027Space\u0027 is our own scheduled channel (kind=scheduled): a published running order the app resolves to whatever should be on air now — built from NASA\u0027s media library, a US federal government work and public domain by statute, fetched from nasa.gov so provenance is guaranteed. NASA\u0027s insignia is NOT public domain: keep it out of channel artwork, and nothing may imply NASA endorses the app. Other entries are Creative Commons (Blender open movies) or official developer test streams. Run check-streams.sh before committing.",
