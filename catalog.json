@@ -1,7 +1,7 @@
 {
-    "version":  5,
-    "updated":  "2026-08-25",
-    "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. \u0027Space\u0027 is our own scheduled channel (kind=scheduled): a published running order the app resolves to whatever should be on air now — built from NASA\u0027s media library, a US federal government work and public domain by statute, fetched from nasa.gov so provenance is guaranteed. NASA\u0027s insignia is NOT public domain: keep it out of channel artwork, and nothing may imply NASA endorses the app. Other entries are Creative Commons (Blender open movies) or official developer test streams. Run check-streams.sh before committing.",
+    "version":  6,
+    "updated":  "2026-09-06",
+    "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. Channels with kind=scheduled are our own: a published running order the app resolves to whatever should be on air now. \u0027Space\u0027 is NASA footage and \u0027Deep Sea\u0027 NOAA footage, US federal government works and public domain by statute. \u0027Night Sky\u0027 is ESO and NSF NOIRLab footage and \u0027Animation\u0027 the Blender open movies, all Creative Commons Attribution: every item carries a \u0027credit\u0027 line the app shows on screen, which the licence requires. No source\u0027s logo or insignia may be used as channel art, and nothing may imply any of them endorses the app. The curation record for each channel (page, licence, exclusions and why) lives in the app repo under tools/channels/. Run check-streams.sh before committing.",
     "channels":  [
                      {
                          "id":  "nasa",
@@ -1112,28 +1112,711 @@
                                       }
                      },
                      {
-                         "id":  "big_buck_bunny",
-                         "name":  "Big Buck Bunny",
-                         "category":  "Animation",
-                         "streamUrl":  "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+                         "id":  "nightsky",
+                         "name":  "Night Sky",
+                         "category":  "Science",
+                         "kind":  "scheduled",
+                         "schedule":  {
+                                          "epoch":  "2026-09-06T00:00:00Z",
+                                          "items":  [
+                                                        {
+                                                            "title":  "The Exciting Little Timelapse: A year in the life of the ELT",
+                                                            "year":  2025,
+                                                            "seconds":  72,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/potw2508a.m4v",
+                                                            "credit":  "ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Night Changes Over Kitt Peak",
+                                                            "year":  2023,
+                                                            "seconds":  63,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/Tomas_Kitt_Peak_Timelapse_From_Roof-CC.mp4",
+                                                            "credit":  "Kitt Peak National Observatory/NOIRLab/NSF/AURA/T. Slovinský · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over Paranal (1)",
+                                                            "year":  2016,
+                                                            "seconds":  504,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/paranal-droneaerial2015a.m4v",
+                                                            "credit":  "ESO/Liam Young · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Kitt Peak National Observatory Time Lapse",
+                                                            "year":  2014,
+                                                            "seconds":  61,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noao-kitt-peak-may2014-3-hd.mp4",
+                                                            "credit":  "NOIRLab/AURA/NSF/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "A MUSE view of the 177-341 W young stellar object",
+                                                            "year":  2024,
+                                                            "seconds":  50,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/potw2423a.m4v",
+                                                            "credit":  "ESO/M. L. Aru et al./L. Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Star Trails Over Mauna Kea",
+                                                            "year":  2004,
+                                                            "seconds":  47,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/gemini-mkinversionhd.mp4",
+                                                            "credit":  "International Gemini Observatory/NSF/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "La Silla time-lapse",
+                                                            "year":  2012,
+                                                            "seconds":  65,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasillatimelapse241109.m4v",
+                                                            "credit":  "ESO/A.Santerne · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Pan on NSF–DOE Rubin’s Ocean of Stars",
+                                                            "year":  2026,
+                                                            "seconds":  46,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2616d.mp4",
+                                                            "credit":  "NSF–DOE Vera C. Rubin Observatory/NOIRLab/SLAC/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Dust trap animation",
+                                                            "year":  2013,
+                                                            "seconds":  73,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1325b.m4v",
+                                                            "credit":  "ESO/L. Calçada · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over La Silla Observatory (1)",
+                                                            "year":  2019,
+                                                            "seconds":  236,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasilla-drone-2019.m4v",
+                                                            "credit":  "G. Hüdepohl (atacamaphoto.com)/ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Mayall Telescope Night Sky Timelapse",
+                                                            "year":  2025,
+                                                            "seconds":  57,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/Rob-Mayall-DESI-Timelapse-2-11-25-CC.mp4",
+                                                            "credit":  "KPNO/NOIRLab/NSF/AURA/R. Sparks · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Stargazers",
+                                                            "year":  2019,
+                                                            "seconds":  51,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-vlt2014-1.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Lunar Eclipse over CTIO",
+                                                            "year":  2026,
+                                                            "seconds":  88,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/Timelapse_14mm-Moving-TLE-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/P. Horálek · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "A MUSE view of the 244-440 young stellar object",
+                                                            "year":  2023,
+                                                            "seconds":  59,
+                                                            "url":  "https://cdn.eso.org/videos/hd_1080p25_screen/potw2316a.mp4",
+                                                            "credit":  "ESO/Kirwan et al./L. Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Mauna Kea Time Lapse Movie",
+                                                            "year":  2010,
+                                                            "seconds":  75,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/gemini-gn-mk-no-lasers-darker.mp4",
+                                                            "credit":  "International Gemini Observatory/NSF/AURA/J. Pollard · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Paranal time-lapse compilation 2012",
+                                                            "year":  2012,
+                                                            "seconds":  892,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/paranaltimelapses2012.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com)/B. Tafreshi (twanight.org)/José Francisco Salgado (josefrancisco.org)/S. Guisard (www.eso.org/~sguisard)/G. Brammer · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Pan on WIYN 0.9-meter Telescope",
+                                                            "year":  2020,
+                                                            "seconds":  60,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2018c.mp4",
+                                                            "credit":  "KPNO/NOIRLab/NSF/AURA/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Artist’s impression of planet orbiting in the HD 131399 system",
+                                                            "year":  2016,
+                                                            "seconds":  65,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1624a.m4v",
+                                                            "credit":  "ESO/L. Calçada/M. Kornmesser · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Artist’s animation of the dust trap in IRS 48",
+                                                            "year":  2022,
+                                                            "seconds":  54,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso2205b.m4v",
+                                                            "credit":  "ESO/L. Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Pan on Rubin Observatory’s Image of the COSMOS Field",
+                                                            "year":  2026,
+                                                            "seconds":  52,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2618b.mp4",
+                                                            "credit":  "NSF–DOE Vera C. Rubin Observatory/NOIRLab/SLAC/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "An evening time-lapse at Paranal",
+                                                            "year":  2015,
+                                                            "seconds":  54,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/colosimo_paranal_01.m4v",
+                                                            "credit":  "ESO/J. Colosimo · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Cerro Tololo\u0027s Starry Skies Timelapse",
+                                                            "year":  2023,
+                                                            "seconds":  48,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/20220501_CTIO-TL-outside-SMARTS-DMunizaga-003-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/D. Munizaga · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "The ALMA time-lapse compilation 2012",
+                                                            "year":  2012,
+                                                            "seconds":  394,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/ann12099a.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com)/B. Tafreshi (twanight.org)/José Francisco Salgado (josefrancisco.org) · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Night Falls at Blanco",
+                                                            "year":  2025,
+                                                            "seconds":  58,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/CTIO-dusk-1-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/O. Smékal · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "MUSE view of the Hubble Deep Field South",
+                                                            "year":  2015,
+                                                            "seconds":  56,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1507d.m4v",
+                                                            "credit":  "ESO/MUSE Consortium/R. Bacon · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset over Kitt Peak National Observatory",
+                                                            "year":  2020,
+                                                            "seconds":  189,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/iotw2001a.mp4",
+                                                            "credit":  "NSF NOIRLab/KPNO/AURA/R.T. Sparks · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "A video view of MUSE data of the Hubble Deep Field South",
+                                                            "year":  2015,
+                                                            "seconds":  56,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1507e.m4v",
+                                                            "credit":  "ESO/MUSE Consortium/R. Bacon · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Time-lapse of unique cloudscape over La Silla",
+                                                            "year":  2014,
+                                                            "seconds":  61,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd_cm_lasilla_01.m4v",
+                                                            "credit":  "ESO/C.Malin · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Aerial view of Cerro Pachón and its Observatories.",
+                                                            "year":  2024,
+                                                            "seconds":  61,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/DJI_0934-CC.mp4",
+                                                            "credit":  "International Gemini Observatory/NOIRLab/NSF/AURA/V. Jofré · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "VLT light path (artist\u0027s impression)",
+                                                            "year":  2021,
+                                                            "seconds":  45,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/LightPath-VLT2021.m4v",
+                                                            "credit":  "ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Moonrise over CTIO",
+                                                            "year":  2025,
+                                                            "seconds":  60,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/CTIO-Night-3-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/O. Smékal · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over La Silla Observatory (2)",
+                                                            "year":  2021,
+                                                            "seconds":  95,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/La_Silla_aerial_2020.m4v",
+                                                            "credit":  "ESO/C. Durán · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Aerial view of Vera C. Rubin Observatory.",
+                                                            "year":  2024,
+                                                            "seconds":  113,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/DJI_0924-CC.mp4",
+                                                            "credit":  "NSF–DOE Vera C. Rubin Observatory/NOIRLab/SLAC/AURA/V. Jofré · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Looking at the Saturn Nebula in 3D",
+                                                            "year":  2017,
+                                                            "seconds":  50,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1731b.m4v",
+                                                            "credit":  "ESO/J. Walsh/L.Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Rubin Sunset Flyaround",
+                                                            "year":  2025,
+                                                            "seconds":  168,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/SunsetFlyAround-CC.mp4",
+                                                            "credit":  "RubinObs/NSF/AURA/H. Stockebrand · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset Paranal",
+                                                            "year":  2019,
+                                                            "seconds":  89,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-vlt2014-4.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Artist\u0027s impression of the evolution of a hot high-mass binary star",
+                                                            "year":  2012,
+                                                            "seconds":  102,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1230a.m4v",
+                                                            "credit":  "ESO/L. Calçada/M. Kornmesser/S.E. de Mink · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Our Changing Night Sky",
+                                                            "year":  2025,
+                                                            "seconds":  50,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/night_sky_changes.mp4",
+                                                            "credit":  "NOIRLab/NSF/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Time-lapse of satellites over ESO’s Very Large Telescope",
+                                                            "year":  2026,
+                                                            "seconds":  71,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso2607c.m4v",
+                                                            "credit":  "F. Kamphues/ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Mayall 4-m interior time-lapse",
+                                                            "year":  2012,
+                                                            "seconds":  47,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noao-mayall-interior.mp4",
+                                                            "credit":  "NOIRLab/AURA/NSF/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Orbits of three stars very close to the centre of the Milky Way",
+                                                            "year":  2017,
+                                                            "seconds":  45,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/ann17051a.m4v",
+                                                            "credit":  "ESO/M. Parsa/L. Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Timelapse footage of the UArizona Bok 2.3-meter Telescope.",
+                                                            "year":  2024,
+                                                            "seconds":  52,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/Mayall-Bok-Timelapse-12-13-23-CC.mp4",
+                                                            "credit":  "KPNO/NOIRLab/NSF/AURA/R.T. Sparks · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "La Silla time-lapse MPG/ESO 2.2-metre telescope",
+                                                            "year":  2012,
+                                                            "seconds":  55,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasillatimelapseesompg.m4v",
+                                                            "credit":  "ESO/José Francisco Salgado (josefrancisco.org) · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset at Cerro Tololo",
+                                                            "year":  2023,
+                                                            "seconds":  47,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/DJI_0806-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Flight over Paranal",
+                                                            "year":  2021,
+                                                            "seconds":  72,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/flight-over-paranal-flat.m4v",
+                                                            "credit":  "ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset at La Silla",
+                                                            "year":  2020,
+                                                            "seconds":  64,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasilla-sunset1.m4v",
+                                                            "credit":  "ESO/M. Zamani · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Milky Way Disappearing Act",
+                                                            "year":  2026,
+                                                            "seconds":  73,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/iotw2512a-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/O. Smékal (Institute of Physics in Opava) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Yepun to the Universe",
+                                                            "year":  2019,
+                                                            "seconds":  53,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-vlt2014-3.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Vera C. Rubin Observatory at Sunset December 2023.",
+                                                            "year":  2024,
+                                                            "seconds":  119,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/rubin-VidDec2023-CC.mp4",
+                                                            "credit":  "Rubin Observatory/NSF/AURA/H. Stockebrand · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Front-row view of the Universe",
+                                                            "year":  2019,
+                                                            "seconds":  108,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-alma-pan2.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "DESI map flythrough",
+                                                            "year":  2026,
+                                                            "seconds":  60,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2610d.mp4",
+                                                            "credit":  "DESI Collaboration and DESI Member Institutions/DOE/KPNO/NOIRLab/NSF/AURA/R. Proctor Image Processing: M. Zamani (NSF NOIRLab) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "2019 total solar eclipse real-time video, La Silla Observatory",
+                                                            "year":  2019,
+                                                            "seconds":  244,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1912d.m4v",
+                                                            "credit":  "ESO/A. Santerne · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "A night of observing at Kitt Peak",
+                                                            "year":  2020,
+                                                            "seconds":  52,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/mayall_timelapse_pete.mp4",
+                                                            "credit":  "KPNO/NOIRLab/NSF/AURA/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Waking up at dusk",
+                                                            "year":  2019,
+                                                            "seconds":  91,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-alma-pan3.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Ultra HD time-lapse of ALMA",
+                                                            "year":  2015,
+                                                            "seconds":  121,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd_cm_alma_03.m4v",
+                                                            "credit":  "(ESO/NAOJ/NRAO)/C.Malin · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Time-lapses from inside the Gemini North dome",
+                                                            "year":  2020,
+                                                            "seconds":  46,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/gemini_demo_real_goebel.mp4",
+                                                            "credit":  "International Gemini Observatory/NOIRLab/NSF/AURA/S. Goebel · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Neutron star merger animation and elements formed in these events",
+                                                            "year":  2019,
+                                                            "seconds":  48,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1917b.m4v",
+                                                            "credit":  "ESO/L. Calçada · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Timelapse above Blanco",
+                                                            "year":  2025,
+                                                            "seconds":  51,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/CTIO-Night-5-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/O. Smékal · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "The most powerful laser guide star system in the world sees first light at the Paranal Observatory",
+                                                            "year":  2016,
+                                                            "seconds":  63,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso1613a.m4v",
+                                                            "credit":  "ESO/F. Kamphues/S. Lowery/G. Hüdepohl · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Observing the sky: LSST simulation",
+                                                            "year":  2017,
+                                                            "seconds":  297,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/rubin-observing-the-sky-rubin-simulation.mp4",
+                                                            "credit":  "LSST/NSF/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset over ALMA",
+                                                            "year":  2014,
+                                                            "seconds":  47,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd_cm_alma_01.m4v",
+                                                            "credit":  "ALMA (ESO/NAOJ/NRAO)/C.Malin · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "DESI Fan and 3D Galaxy Fly-Through",
+                                                            "year":  2025,
+                                                            "seconds":  109,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2512f.mp4",
+                                                            "credit":  "DESI Collaboration/DOE/KPNO/NOIRLab/NSF/AURA/R. Proctor · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Milky Way Fly-through (Europe to the Stars clip)",
+                                                            "year":  2012,
+                                                            "seconds":  113,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso50milkywayflythrough.m4v",
+                                                            "credit":  "ESO/M. Kornmesser/L. Calçada · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Timelapse of the VLTI lasers (colour)",
+                                                            "year":  2025,
+                                                            "seconds":  60,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/eso2519b.m4v",
+                                                            "credit":  "J. Beltran/ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "2019 Solar eclipse over CTIO",
+                                                            "year":  2021,
+                                                            "seconds":  123,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/kpno_solar_eclipse_2m.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "La Silla time-lapse general view",
+                                                            "year":  2012,
+                                                            "seconds":  61,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasillatimelapsegeneralview.m4v",
+                                                            "credit":  "ESO/José Francisco Salgado (josefrancisco.org) · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Pan on Dust Lanes (UHD format)",
+                                                            "year":  2025,
+                                                            "seconds":  60,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noirlab2521m.mp4",
+                                                            "credit":  "NSF–DOE Vera C. Rubin Observatory/NOIRLab/SLAC/AURA Music: Billions and Billions by Stellardrone (CC-BY) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over ALMA",
+                                                            "year":  2016,
+                                                            "seconds":  268,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/alma-droneaerial2015a.m4v",
+                                                            "credit":  "ESO/Liam Young · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Kitt Peak National Observatory at night",
+                                                            "year":  2021,
+                                                            "seconds":  57,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/noao-kitt-peak-may2014-2-hd.mp4",
+                                                            "credit":  "KPNO/NOIRLab/NSF/AURA/P. Marenfeld · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over Paranal (2)",
+                                                            "year":  2016,
+                                                            "seconds":  163,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/paranal-droneaerial2016a.m4v",
+                                                            "credit":  "ESO/G. Hüdepohl · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Gemini South Laser Timelapse",
+                                                            "year":  2025,
+                                                            "seconds":  45,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/2025_04_20-21_TLS_12mm_Gemini_Rubin_Laser_AG-CC.mp4",
+                                                            "credit":  "NOIRLab/NSF/AURA/P. Horálek · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Artist’s animation showing the tip-tilt motion of the M5 mirror",
+                                                            "year":  2024,
+                                                            "seconds":  45,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/ann24008b.m4v",
+                                                            "credit":  "ESO · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "La Silla Observatory UHD Video Compilation",
+                                                            "year":  2014,
+                                                            "seconds":  228,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd_comp_lasilla_2014.m4v",
+                                                            "credit":  "ESO · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Telescopes of Maunakea Aerial Drone Footage",
+                                                            "year":  2024,
+                                                            "seconds":  162,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/GN-Drone-HARA-CC.mp4",
+                                                            "credit":  "International Gemini Observatory/NOIRLab/NSF/AURA/A. Hara · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "On the mountaintop",
+                                                            "year":  2019,
+                                                            "seconds":  77,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-vlt2014-2.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sunset at CTIO Aerial",
+                                                            "year":  2023,
+                                                            "seconds":  156,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/DJI_0134-CC.mp4",
+                                                            "credit":  "CTIO/NOIRLab/NSF/AURA · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Dance of the dishes",
+                                                            "year":  2019,
+                                                            "seconds":  53,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-alma-mw1.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "A night of observing at Cerro Pachón",
+                                                            "year":  2020,
+                                                            "seconds":  99,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/ochul_kwon_gemini.mp4",
+                                                            "credit":  "International Gemini Observatory/NOIRLab/NSF/AURA/Kwon O Chul · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Listening out",
+                                                            "year":  2019,
+                                                            "seconds":  102,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/uhd-cm-alma-pan1.m4v",
+                                                            "credit":  "ESO/C. Malin (christophmalin.com) · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Meteor Shower Visualization",
+                                                            "year":  2025,
+                                                            "seconds":  66,
+                                                            "url":  "https://storage.noirlab.edu/media/archives/videos/hd_1080_screen/meteor_shower_flat.mp4",
+                                                            "credit":  "NOIRLab/NSF/AURA/R. Proctor · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Drone flight over La Silla",
+                                                            "year":  2016,
+                                                            "seconds":  144,
+                                                            "url":  "https://cdn.eso.org/videos/hd_and_apple/lasilla-droneaerial2015a.m4v",
+                                                            "credit":  "ESO/Liam Young · CC BY 4.0"
+                                                        }
+                                                    ]
+                                      }
                      },
                      {
-                         "id":  "tears_of_steel",
-                         "name":  "Tears of Steel",
-                         "category":  "Sci-Fi",
-                         "streamUrl":  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"
-                     },
-                     {
-                         "id":  "elephants_dream",
-                         "name":  "Elephants Dream",
+                         "id":  "animation",
+                         "name":  "Animation",
                          "category":  "Animation",
-                         "streamUrl":  "https://test-streams.mux.dev/test_001/stream.m3u8"
-                     },
-                     {
-                         "id":  "spring",
-                         "name":  "Spring",
-                         "category":  "Animation",
-                         "streamUrl":  "https://test-streams.mux.dev/pts_shift/master.m3u8"
+                         "kind":  "scheduled",
+                         "schedule":  {
+                                          "epoch":  "2026-09-06T00:00:00Z",
+                                          "items":  [
+                                                        {
+                                                            "title":  "Big Buck Bunny",
+                                                            "year":  2008,
+                                                            "seconds":  634,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/6402b77c-b61f-4a06-96ca-c8420a2becf4-1080.mp4",
+                                                            "credit":  "(c) 2008 Blender Foundation / bigbuckbunny.org · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Caminandes 3: Llamigos",
+                                                            "year":  2016,
+                                                            "seconds":  150,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/23f3ef79-15dc-44c5-aa45-cf92e78a4509-1080.mp4",
+                                                            "credit":  "Blender Foundation / caminandes.com · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sintel",
+                                                            "year":  2010,
+                                                            "seconds":  888,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/0eb052d0-fd51-43e6-aa33-ecdbf77a5d40-818.mp4",
+                                                            "credit":  "(c) Blender Foundation / sintel.org · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Coffee Run",
+                                                            "year":  2020,
+                                                            "seconds":  184,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/ff8fe61b-026f-4f07-b66b-2a790d6f6ab1-804.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Elephants Dream",
+                                                            "year":  2006,
+                                                            "seconds":  654,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/cccc3e60-0291-4ecc-aa56-39b2e2c7d0d5-720.mp4",
+                                                            "credit":  "(c) 2006 Blender Foundation / Netherlands Media Art Institute / orange.blender.org · CC BY 2.5"
+                                                        },
+                                                        {
+                                                            "title":  "Glass Half",
+                                                            "year":  2015,
+                                                            "seconds":  193,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/64222c8a-c4c7-4b3b-9850-7fb2078edcf6-1080.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Tears of Steel",
+                                                            "year":  2012,
+                                                            "seconds":  734,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/8533ea43-4271-4a57-9694-e9d0b35e1aa1-800.mp4",
+                                                            "credit":  "(CC) Blender Foundation / mango.blender.org · CC BY 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Wing It!",
+                                                            "year":  2023,
+                                                            "seconds":  237,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/9178581e-4d24-4a67-adf2-a30eadfaf32f-1080.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Spring",
+                                                            "year":  2019,
+                                                            "seconds":  464,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/3d95fb3d-c866-42c8-9db1-fe82f48ccb95-804.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY-SA 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "The Daily Dweebs",
+                                                            "year":  2017,
+                                                            "seconds":  60,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/7b2eff2a-35f2-4403-9d88-d0dd6e4b5ba1-1080.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Cosmos Laundromat",
+                                                            "year":  2015,
+                                                            "seconds":  730,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/f507dfdc-e73e-45a4-9778-d758cbe1ce96-804.mp4",
+                                                            "credit":  "Blender Foundation / studio.blender.org · CC BY-SA 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Charge",
+                                                            "year":  2022,
+                                                            "seconds":  262,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/01d4421b-55f7-4349-bb6c-b8aa3053ffe4-1080.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Pepper \u0026 Carrot: The Potion Contest",
+                                                            "year":  2017,
+                                                            "seconds":  454,
+                                                            "url":  "https://archive.org/download/peppercarrot-ep6/pepper-en-basic.mp4",
+                                                            "credit":  "Morevna Project, after the webcomic by David Revoy · CC BY-SA 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Hero",
+                                                            "year":  2018,
+                                                            "seconds":  236,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/6c79205c-bd3a-42b5-a8a2-ce7a2a166154-536.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Sprite Fright",
+                                                            "year":  2021,
+                                                            "seconds":  629,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/a69d68a5-a0e0-4a80-9d66-49f093c97aaf-804.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
+                                                        },
+                                                        {
+                                                            "title":  "Caminandes 2: Gran Dillama",
+                                                            "year":  2013,
+                                                            "seconds":  146,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/fb70d459-48d2-4db5-adba-813c84f9200a-1080.mp4",
+                                                            "credit":  "Blender Foundation / caminandes.com · CC BY-SA 3.0"
+                                                        },
+                                                        {
+                                                            "title":  "Singularity",
+                                                            "seconds":  391,
+                                                            "url":  "https://video.blender.org/object-storage/web_videos/f91fd74e-a81f-48ec-b92b-c9504ac46e31-1080.mp4",
+                                                            "credit":  "Blender Studio / studio.blender.org · CC BY-SA 4.0"
+                                                        }
+                                                    ]
+                                      }
                      },
                      {
                          "id":  "apple_test",
