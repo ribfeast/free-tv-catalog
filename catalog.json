@@ -1,6 +1,6 @@
 {
-    "version":  6,
-    "updated":  "2026-09-06",
+    "version":  7,
+    "updated":  "2026-09-18",
     "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. Channels with kind=scheduled are our own: a published running order the app resolves to whatever should be on air now. \u0027Space\u0027 is NASA footage and \u0027Deep Sea\u0027 NOAA footage, US federal government works and public domain by statute. \u0027Night Sky\u0027 is ESO and NSF NOIRLab footage and \u0027Animation\u0027 the Blender open movies, all Creative Commons Attribution: every item carries a \u0027credit\u0027 line the app shows on screen, which the licence requires. No source\u0027s logo or insignia may be used as channel art, and nothing may imply any of them endorses the app. The curation record for each channel (page, licence, exclusions and why) lives in the app repo under tools/channels/. Run check-streams.sh before committing.",
     "channels":  [
                      {
@@ -1793,13 +1793,6 @@
                                                             "year":  2018,
                                                             "seconds":  236,
                                                             "url":  "https://video.blender.org/object-storage/web_videos/6c79205c-bd3a-42b5-a8a2-ce7a2a166154-536.mp4",
-                                                            "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
-                                                        },
-                                                        {
-                                                            "title":  "Sprite Fright",
-                                                            "year":  2021,
-                                                            "seconds":  629,
-                                                            "url":  "https://video.blender.org/object-storage/web_videos/a69d68a5-a0e0-4a80-9d66-49f093c97aaf-804.mp4",
                                                             "credit":  "Blender Studio / studio.blender.org · CC BY 4.0"
                                                         },
                                                         {
