@@ -1,7 +1,7 @@
 {
-    "version":  7,
-    "updated":  "2026-09-18",
-    "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. Channels with kind=scheduled are our own: a published running order the app resolves to whatever should be on air now. \u0027Space\u0027 is NASA footage and \u0027Deep Sea\u0027 NOAA footage, US federal government works and public domain by statute. \u0027Night Sky\u0027 is ESO and NSF NOIRLab footage and \u0027Animation\u0027 the Blender open movies, all Creative Commons Attribution: every item carries a \u0027credit\u0027 line the app shows on screen, which the licence requires. No source\u0027s logo or insignia may be used as channel art, and nothing may imply any of them endorses the app. The curation record for each channel (page, licence, exclusions and why) lives in the app repo under tools/channels/. Run check-streams.sh before committing.",
+    "version":  8,
+    "updated":  "2026-09-19",
+    "_comment":  "LIVE catalog for the Free TV app. Editing this file changes the app\u0027s channels with no release. Channels with kind=scheduled are our own: a published running order the app resolves to whatever should be on air now. \u0027Space\u0027, \u0027Deep Sea\u0027 and \u0027Earth\u0027 are NASA and NOAA footage, US federal government works and public domain by statute. \u0027Night Sky\u0027 (ESO, NSF NOIRLab) and \u0027Animation\u0027 (Blender open movies) are Creative Commons: every item carries a \u0027credit\u0027 line the app shows on screen, which the licence requires. No source\u0027s logo or insignia may be used as channel art, and nothing may imply any of them endorses the app. The curation record for each channel (page, licence, exclusions and why) lives in the app repo under tools/channels/. Run check-streams.sh before committing.",
     "channels":  [
                      {
                          "id":  "nasa",
@@ -1807,6 +1807,305 @@
                                                             "seconds":  391,
                                                             "url":  "https://video.blender.org/object-storage/web_videos/f91fd74e-a81f-48ec-b92b-c9504ac46e31-1080.mp4",
                                                             "credit":  "Blender Studio / studio.blender.org · CC BY-SA 4.0"
+                                                        }
+                                                    ]
+                                      }
+                     },
+                     {
+                         "id":  "earth",
+                         "name":  "Earth",
+                         "category":  "Science",
+                         "kind":  "scheduled",
+                         "schedule":  {
+                                          "epoch":  "2026-09-19T00:00:00Z",
+                                          "items":  [
+                                                        {
+                                                            "title":  "Arctic Sea Ice Minimum 2023",
+                                                            "year":  2023,
+                                                            "seconds":  107,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005162/arctic_sea_ice_2023_min_1080p60_p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/5162"
+                                                        },
+                                                        {
+                                                            "title":  "Internal Tides: Global Views",
+                                                            "year":  2021,
+                                                            "seconds":  100,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004879/LargeTides_Composite_1920x1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Helen-Nicole Kostis",
+                                                            "description":  "svs.gsfc.nasa.gov/4879"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Dorian from the Space Station, 1 September 2019",
+                                                            "year":  2019,
+                                                            "seconds":  274,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2019m000805_Hurricane_Dorian_190901/jsc2019m000805_Hurricane_Dorian_190901~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2019m000805_Hurricane_Dorian_190901"
+                                                        },
+                                                        {
+                                                            "title":  "Global Carbon Dioxide 2020-2021",
+                                                            "year":  2021,
+                                                            "seconds":  112,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004949/CO2Volumetric_1920x1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / AJ Christensen",
+                                                            "description":  "svs.gsfc.nasa.gov/4949"
+                                                        },
+                                                        {
+                                                            "title":  "PACE Data Tour - Visualizations",
+                                                            "year":  2026,
+                                                            "seconds":  171,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005599/pace_tour_full_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Kel Elkins",
+                                                            "description":  "svs.gsfc.nasa.gov/5599"
+                                                        },
+                                                        {
+                                                            "title":  "Godzilla Dust Storm",
+                                                            "year":  2021,
+                                                            "seconds":  60,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004849/GodzillaShot2_1920x1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Helen-Nicole Kostis",
+                                                            "description":  "svs.gsfc.nasa.gov/4849"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Dorian from the Space Station, 2 September 2019",
+                                                            "year":  2019,
+                                                            "seconds":  191,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2019m000806_Hurricane_Dorian_190902/jsc2019m000806_Hurricane_Dorian_190902~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2019m000806_Hurricane_Dorian_190902"
+                                                        },
+                                                        {
+                                                            "title":  "Gravity waves disturbing the stratospheric polar vortex",
+                                                            "year":  2024,
+                                                            "seconds":  56,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005400/a005423/stratospher850_039_T_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Atousa Saberi",
+                                                            "description":  "svs.gsfc.nasa.gov/5423"
+                                                        },
+                                                        {
+                                                            "title":  "Global Views of ICESat-2 Data",
+                                                            "year":  2026,
+                                                            "seconds":  70,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005616/icesat2_global_data_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Kel Elkins",
+                                                            "description":  "svs.gsfc.nasa.gov/5616"
+                                                        },
+                                                        {
+                                                            "title":  "SWOT River Volume Variations",
+                                                            "year":  2026,
+                                                            "seconds":  121,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005618/SWOT_rivers_v_anom_FINAL02_comp_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Greg Shirah",
+                                                            "description":  "svs.gsfc.nasa.gov/5618"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Beryl Flyover, 1 July 2024",
+                                                            "year":  2024,
+                                                            "seconds":  733,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2024m000130_Expedition_71_International_Space_Station_Flyover_of_Hurricane_Beryl_240701/jsc2024m000130_Expedition_71_International_Space_Station_Flyover_of_Hurricane_Beryl_240701~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2024m000130_Expedition_71_International_Space_Station_Flyover_of_Hurricane_Beryl_240701"
+                                                        },
+                                                        {
+                                                            "title":  "GPM 10th Anniversary Tour",
+                                                            "year":  2024,
+                                                            "seconds":  110,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005361/TenthAnniv_v34_2024-06-21_1415_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Alex Kekesi",
+                                                            "description":  "svs.gsfc.nasa.gov/5361"
+                                                        },
+                                                        {
+                                                            "title":  "Powerful Typhoon Sinlaku strikes the Northern Marianas",
+                                                            "year":  2026,
+                                                            "seconds":  51,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005641/newSinlaku_v14_2026-04-20_144235.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Alex Kekesi",
+                                                            "description":  "svs.gsfc.nasa.gov/5641"
+                                                        },
+                                                        {
+                                                            "title":  "Earth Views from the Space Station, December 2020",
+                                                            "year":  2020,
+                                                            "seconds":  2640,
+                                                            "url":  "https://images-assets.nasa.gov/video/NHQ_2020_1221_Earth%20Views/NHQ_2020_1221_Earth%20Views~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/NHQ_2020_1221_Earth Views"
+                                                        },
+                                                        {
+                                                            "title":  "Global Snow Cover and Sea Ice Cycle at Both Poles",
+                                                            "year":  2022,
+                                                            "seconds":  55,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004995/snow_and_ice_north_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/4995"
+                                                        },
+                                                        {
+                                                            "title":  "Arctic Sea Ice Minimum 2021",
+                                                            "year":  2021,
+                                                            "seconds":  53,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004941/sea_ice_2021_min_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/4941"
+                                                        },
+                                                        {
+                                                            "title":  "Arctic Sea Ice Minimum 2024",
+                                                            "year":  2024,
+                                                            "seconds":  54,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005382/sea_ice_2024_min_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/5382"
+                                                        },
+                                                        {
+                                                            "title":  "Global Temperature Anomalies from 1880 to 2025",
+                                                            "year":  2026,
+                                                            "seconds":  60,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005603/GISTEMP_Map2025_HD_smoothed.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Mark SubbaRao",
+                                                            "description":  "svs.gsfc.nasa.gov/5603"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Milton from the Space Station",
+                                                            "year":  2024,
+                                                            "seconds":  307,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2024m000173_International_Space_Station_Cameras_Capture_New_Views_Of_Hurricane_Milton_241008/jsc2024m000173_International_Space_Station_Cameras_Capture_New_Views_Of_Hurricane_Milton_241008~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2024m000173_International_Space_Station_Cameras_Capture_New_Views_Of_Hurricane_Milton_241008"
+                                                        },
+                                                        {
+                                                            "title":  "Super Typhoon Bavi",
+                                                            "year":  2026,
+                                                            "seconds":  86,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005662/Bavi_v22HD.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Alex Kekesi",
+                                                            "description":  "svs.gsfc.nasa.gov/5662"
+                                                        },
+                                                        {
+                                                            "title":  "Lightning Events Detected from the International Space Station (ISS) 2017-2023",
+                                                            "year":  2023,
+                                                            "seconds":  216,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_sphere_07312023.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Michala Garrison",
+                                                            "description":  "svs.gsfc.nasa.gov/5011"
+                                                        },
+                                                        {
+                                                            "title":  "Global Nighttime Lights Change (2014–2022)",
+                                                            "year":  2026,
+                                                            "seconds":  59,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005634/nightlights_cumulative_change_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Kel Elkins",
+                                                            "description":  "svs.gsfc.nasa.gov/5634"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Erin from the Space Station",
+                                                            "year":  2025,
+                                                            "seconds":  190,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2025m000148-Hurricane_Erin_Seen_From_International_Space_Station/jsc2025m000148-Hurricane_Erin_Seen_From_International_Space_Station~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2025m000148-Hurricane_Erin_Seen_From_International_Space_Station"
+                                                        },
+                                                        {
+                                                            "title":  "2017 Solar Eclipse from L1",
+                                                            "year":  2016,
+                                                            "seconds":  48,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004400/a004467/eclipse_L1_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Ernie Wright",
+                                                            "description":  "svs.gsfc.nasa.gov/4467"
+                                                        },
+                                                        {
+                                                            "title":  "Spinning Earth with clouds, atmosphere, and night lights",
+                                                            "year":  2025,
+                                                            "seconds":  100,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005570/Earth_wAtmos_spin_02_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Kel Elkins",
+                                                            "description":  "svs.gsfc.nasa.gov/5570"
+                                                        },
+                                                        {
+                                                            "title":  "Earth\u0027s Radiation Balance, 2000-2023",
+                                                            "year":  2023,
+                                                            "seconds":  61,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005173/planetary_heat_anomaly_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/5173"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Helene from the Space Station",
+                                                            "year":  2024,
+                                                            "seconds":  227,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2024m000168-Additional_Views_of_Hurricane_Helene_from_the_International_Space_Station/jsc2024m000168-Additional_Views_of_Hurricane_Helene_from_the_International_Space_Station~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2024m000168-Additional_Views_of_Hurricane_Helene_from_the_International_Space_Station"
+                                                        },
+                                                        {
+                                                            "title":  "Antarctic Sea Ice Maximum, 2024",
+                                                            "year":  2024,
+                                                            "seconds":  54,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005391/antarctic_min_to_max_2024_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/5391"
+                                                        },
+                                                        {
+                                                            "title":  "2023 Atlantic Hurricane Season",
+                                                            "year":  2024,
+                                                            "seconds":  243,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005305/hurr2023_v34_SST_2024-06-26_1119_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Alex Kekesi",
+                                                            "description":  "svs.gsfc.nasa.gov/5305"
+                                                        },
+                                                        {
+                                                            "title":  "Arctic Sea Ice Minimum 2020",
+                                                            "year":  2020,
+                                                            "seconds":  54,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004860/arctic_sea_ice_min_2020_1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/4860"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Milton from the Space Station, 9 October 2024",
+                                                            "year":  2024,
+                                                            "seconds":  329,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2024m000174_Cameras_On_The_International_Space_Station_Capture_New_Views_Of_Hurricane_Milton-241009/jsc2024m000174_Cameras_On_The_International_Space_Station_Capture_New_Views_Of_Hurricane_Milton-241009~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2024m000174_Cameras_On_The_International_Space_Station_Capture_New_Views_Of_Hurricane_Milton-241009"
+                                                        },
+                                                        {
+                                                            "title":  "Arctic Sea Ice Minimum 2022",
+                                                            "year":  2022,
+                                                            "seconds":  53,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005030/sea_ice_2022_min_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Trent L. Schindler",
+                                                            "description":  "svs.gsfc.nasa.gov/5030"
+                                                        },
+                                                        {
+                                                            "title":  "Internal Ocean Tides",
+                                                            "year":  2021,
+                                                            "seconds":  127,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004850/InternalTides_1920x1080p30.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Helen-Nicole Kostis",
+                                                            "description":  "svs.gsfc.nasa.gov/4850"
+                                                        },
+                                                        {
+                                                            "title":  "Perpetual Ocean 2: Polar Views",
+                                                            "year":  2025,
+                                                            "seconds":  120,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005529/north_1080.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Greg Shirah",
+                                                            "description":  "svs.gsfc.nasa.gov/5529"
+                                                        },
+                                                        {
+                                                            "title":  "Hurricane Dorian from the Space Station, 31 August 2019",
+                                                            "year":  2019,
+                                                            "seconds":  398,
+                                                            "url":  "https://images-assets.nasa.gov/video/jsc2019m000804_Hurricane_Dorian_190831/jsc2019m000804_Hurricane_Dorian_190831~large.mp4",
+                                                            "credit":  "NASA/JSC",
+                                                            "description":  "images.nasa.gov/details/jsc2019m000804_Hurricane_Dorian_190831"
+                                                        },
+                                                        {
+                                                            "title":  "23 Years of Sea Surface Temperature (SST) - 2002-2025",
+                                                            "year":  2026,
+                                                            "seconds":  143,
+                                                            "url":  "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005600/sst_mur_2002-2025_HD_16x9_1080p60.mp4",
+                                                            "credit":  "NASA\u0027s Scientific Visualization Studio / Kel Elkins",
+                                                            "description":  "svs.gsfc.nasa.gov/5600"
                                                         }
                                                     ]
                                       }
