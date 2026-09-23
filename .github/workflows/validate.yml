@@ -45,30 +45,36 @@ jobs:
         with:
           sdk: stable
 
-      # A checker that has quietly stopped checking is worse than none, because
-      # its green tick goes on being believed. So before the real file is
-      # judged, the self-test damages copies of it - one per rule - and insists
-      # each copy is refused for the right reason.
-      - name: Prove the checker still refuses what it says it refuses
-        run: dart tools/validate_catalog_selftest.dart catalog.json
-
-      # The "base" is the catalog.json that is live now (for a pull request:
-      # the branch it will merge into; for a push: the commit before it). The
-      # checker compares against it to insist "version" went up, to spot
-      # channels or items vanishing, and to shout when a change moves what is
-      # on air. When there is no base (the first push of a brand-new branch)
-      # the comparison is skipped and the checker says so in its report.
+      # The "base" is the catalog.json that is LIVE NOW, which the checker
+      # compares against to insist "version" went up, to spot channels or items
+      # vanishing, and to shout when a change moves what is on air. Which
+      # commit that is depends on what triggered the run:
+      #  * a pull request: the branch it will merge into;
+      #  * a push to main (a merge, i.e. a release): the commit before it;
+      #  * a push to any other branch: main itself. NOT the commit before,
+      #    which is what a first draft of this file used - a two-commit pull
+      #    request whose version was raised once, the normal way to work,
+      #    went red on its second commit because that commit changed the file
+      #    without raising the version again. What matters is always the
+      #    distance from what phones are reading today.
+      # When there is no base (a brand-new repository) the comparison is
+      # skipped and the checker says so in its report.
       - name: Fetch the version of catalog.json that is live now
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           PUSH_BEFORE: ${{ github.event.before }}
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          live="${DEFAULT_BRANCH:-main}"
           if [ "$EVENT_NAME" = "pull_request" ]; then
             base="origin/$BASE_REF"
-          else
+          elif [ "$REF_NAME" = "$live" ]; then
             base="$PUSH_BEFORE"
+          else
+            base="origin/$live"
           fi
           if git cat-file -e "$base:catalog.json" 2>/dev/null; then
             git show "$base:catalog.json" > /tmp/base_catalog.json
@@ -85,10 +91,29 @@ jobs:
             echo "The pull request says the drop is intended."
           fi
 
+      # The report is written to a file and printed afterwards, on purpose, and
+      # the step exits with the CHECKER's status. The obvious one-liner,
+      # `dart ... | tee report`, is a trap: GitHub's default shell for `run`
+      # is bash WITHOUT pipefail, so a pipeline's status is the last command's
+      # - tee's, always 0 - and the step stayed green while the report said
+      # FAIL. The merge lock would never have turned red.
       - name: Validate catalog.json
         run: |
+          status=0
           dart tools/validate_catalog.dart catalog.json ${BASE_FILE:-} ${VALIDATE_FLAGS:-} \
-            | tee /tmp/validate_report.txt
+            > /tmp/validate_report.txt 2>&1 || status=$?
+          cat /tmp/validate_report.txt
+          exit "$status"
+
+      # A checker that has quietly stopped checking is worse than none, because
+      # its green tick goes on being believed. So once the real file has been
+      # accepted, the self-test damages copies of it - one per rule - and
+      # insists each copy is refused for the right reason. It runs AFTER the
+      # checker, not before: given a file that is not even JSON it used to die
+      # with a stack trace and the checker never ran, so a deleted comma read
+      # as "the checker is broken" instead of "your file is not valid JSON".
+      - name: Prove the checker still refuses what it says it refuses
+        run: dart tools/validate_catalog_selftest.dart catalog.json
 
       # The report is also shown on the run's summary page, so the owner can
       # read "what changed" and any on-air warnings without opening the log.

@@ -54,9 +54,9 @@ var _bad = 0;
 
 void main(List<String> args) {
   _validator = Platform.script.resolve('validate_catalog.dart').toFilePath();
-  _goodText = args.isEmpty ? _sample : File(args[0]).readAsStringSync();
   _temp = Directory.systemTemp.createTempSync('catalog_selftest_');
   try {
+    _goodText = args.isEmpty ? _sample : _prepare(File(args[0]).readAsBytesSync());
     _run();
   } finally {
     _temp.deleteSync(recursive: true);
@@ -70,13 +70,81 @@ void main(List<String> args) {
   stdout.writeln('SELF-TEST PASSED: all $_caseNumber cases behaved.');
 }
 
-// Handles on the parts of a catalogue the cases damage.
-Json _cc(Json cat) => (cat['channels'] as List).cast<Json>().firstWhere((c) =>
+/// Makes a real catalogue fit to be the self-test's starting point.
+///
+/// Two things can go wrong with the file we are handed, and both used to end
+/// in a Dart stack trace - which reads as "the checker is broken" when the
+/// truth is "your file is". So first the checker itself is run on the file,
+/// and a file it refuses stops the self-test with a plain message instead:
+/// the damaged copies would be refused for the file's own faults, not the
+/// damage, and prove nothing.
+///
+/// Second, the cases need a channel of each shape to damage: a live stream
+/// (`streamUrl`) and a Creative Commons running order with at least five
+/// items. The real catalogue is not obliged to contain either - the only live
+/// stream today is a test placeholder due to be removed before the store -
+/// and a look-up that found nothing threw. So any shape the file lacks is
+/// borrowed from the built-in sample and added to the COPY the cases start
+/// from (never the real file), and the report says so. Nothing is skipped.
+///
+/// It takes BYTES, not text, on purpose. Dart's text reader quietly drops a
+/// BOM (the invisible marker the checker's very first rule exists to catch),
+/// so reading the file as text and handing the checker a copy meant a BOM file
+/// was declared fit, and the self-test then "passed" on a file every phone
+/// would have read as empty. The checker must see the file exactly as it is.
+String _prepare(List<int> bytes) {
+  final verdict = Process.runSync(
+    Platform.resolvedExecutable,
+    [_validator, (File('${_temp.path}/given.json')..writeAsBytesSync(bytes)).path],
+    stdoutEncoding: utf8,
+    stderrEncoding: utf8,
+  );
+  if (verdict.exitCode != 0) {
+    stdout.writeln('SELF-TEST NOT RUN: the catalogue it was given is refused by '
+        'the checker as it stands, so damaging copies of it would prove '
+        'nothing. Fix the file first - run the checker on it to see why:');
+    final lines = const LineSplitter().convert('${verdict.stdout}${verdict.stderr}');
+    for (final line in lines.where((l) => l.startsWith('  - ')).take(4)) {
+      stdout.writeln('  ${line.substring(4)}');
+    }
+    exit(1);
+  }
+
+  // Past the checker, so the bytes are known to be clean UTF-8 JSON.
+  final text = utf8.decode(bytes);
+  final cat = jsonDecode(text) as Json;
+  final channels = (cat['channels'] as List).cast<Json>();
+  final sample = (jsonDecode(_sample) as Json)['channels'] as List;
+  final borrowed = <String>[];
+  if (_find(cat, _isStream) == null) {
+    channels.add((sample[2] as Json)..['id'] = 'selftest_stream');
+    borrowed.add('live stream');
+  }
+  if (_find(cat, _isCc) == null) {
+    channels.add((sample[1] as Json)..['id'] = 'selftest_cc');
+    borrowed.add('Creative Commons running order');
+  }
+  if (borrowed.isEmpty) return text;
+  stdout.writeln('The catalogue has no ${borrowed.join(' and no ')} to damage, '
+      'so one from the built-in sample is added to the copy under test.\n');
+  return const JsonEncoder.withIndent('  ').convert(cat);
+}
+
+// Handles on the parts of a catalogue the cases damage. After _prepare a real
+// catalogue always has one of each, so the look-ups cannot come up empty.
+bool _isCc(Json c) =>
     c['schedule'] != null &&
     !publicDomainChannelIds.contains(c['id']) &&
-    _items(c).length >= 5);
-Json _stream(Json cat) =>
-    (cat['channels'] as List).cast<Json>().firstWhere((c) => c['streamUrl'] != null);
+    _items(c).length >= 5;
+bool _isStream(Json c) => c['streamUrl'] != null;
+Json? _find(Json cat, bool Function(Json) test) {
+  for (final c in (cat['channels'] as List).cast<Json>()) {
+    if (test(c)) return c;
+  }
+  return null;
+}
+Json _cc(Json cat) => _find(cat, _isCc)!;
+Json _stream(Json cat) => _find(cat, _isStream)!;
 List<dynamic> _items(Json channel) =>
     (channel['schedule'] as Json)['items'] as List<dynamic>;
 Json _item(Json cat, [int i = 1]) => _items(_cc(cat))[i] as Json;

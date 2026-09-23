@@ -93,10 +93,12 @@ existing channel is a broadcast in progress, and any of them cuts every viewer
 to a different point the moment the file is published. The report says so in
 capitals; say in the pull request that you meant it.
 
-Before judging the real file, the check runs `tools/validate_catalog_selftest.dart`,
-which damages copies of the catalogue one rule at a time and insists each copy
-is refused for its own reason. A checker that has quietly stopped checking is
-worse than none, because its tick goes on being believed.
+Once the real file has been judged, the check also runs
+`tools/validate_catalog_selftest.dart`, which damages copies of the catalogue
+one rule at a time and insists each copy is refused for its own reason. A
+checker that has quietly stopped checking is worse than none, because its tick
+goes on being believed. (It runs *after* the checker so that a broken file is
+reported as a broken file, not as a broken checker.)
 
 **Not checked** (so nobody assumes it is): whether an address actually plays
 (the weekly sweep does that), whether `seconds` is the file's true length (that
