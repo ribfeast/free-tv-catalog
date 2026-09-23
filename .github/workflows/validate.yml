@@ -1,0 +1,102 @@
+# Checks every change to catalog.json BEFORE it can reach the app.
+#
+# Merging to main here is a release: every phone re-reads catalog.json within
+# minutes, and a broken file is read as "no channels" (that happened once, from
+# an invisible marker PowerShell put at the start of the file). This workflow
+# runs tools/validate_catalog.dart on every pull request and every push, and
+# GitHub can be told to grey out the Merge button until it has passed - see
+# README.md, "Turn on the merge lock", for the owner's one-time clicks.
+#
+# The job is called "validate" on purpose: that is the name to pick in the
+# branch-protection settings. Rename it and the lock silently stops applying.
+#
+# Safety notes for anyone editing this file:
+#  * The workflow can only READ the repository (permissions below). It needs
+#    nothing more, and a token that could write would be worth stealing.
+#  * It runs on `pull_request`, never `pull_request_target`. The latter runs
+#    with write access on code from a stranger's fork, which is how public
+#    repos get their tokens taken.
+#  * Third-party actions are pinned to a commit SHA, not a tag. A tag can be
+#    moved to point at different code; a SHA cannot.
+#  * The pull-request description is read through an environment variable,
+#    never pasted into the script, so text in it cannot run as commands.
+
+name: validate
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository (with history, to find the base file)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install Dart
+        uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+        with:
+          sdk: stable
+
+      # A checker that has quietly stopped checking is worse than none, because
+      # its green tick goes on being believed. So before the real file is
+      # judged, the self-test damages copies of it - one per rule - and insists
+      # each copy is refused for the right reason.
+      - name: Prove the checker still refuses what it says it refuses
+        run: dart tools/validate_catalog_selftest.dart catalog.json
+
+      # The "base" is the catalog.json that is live now (for a pull request:
+      # the branch it will merge into; for a push: the commit before it). The
+      # checker compares against it to insist "version" went up, to spot
+      # channels or items vanishing, and to shout when a change moves what is
+      # on air. When there is no base (the first push of a brand-new branch)
+      # the comparison is skipped and the checker says so in its report.
+      - name: Fetch the version of catalog.json that is live now
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="origin/$BASE_REF"
+          else
+            base="$PUSH_BEFORE"
+          fi
+          if git cat-file -e "$base:catalog.json" 2>/dev/null; then
+            git show "$base:catalog.json" > /tmp/base_catalog.json
+            echo "BASE_FILE=/tmp/base_catalog.json" >> "$GITHUB_ENV"
+            echo "Comparing with catalog.json from $base"
+          else
+            echo "No base catalog.json at '$base' - the comparison is skipped."
+          fi
+          # Removing a channel, or a big share of one channel's items, is
+          # refused unless the pull request says it is meant. The phrase to
+          # write in the description is exactly: drop intended
+          if printf '%s' "$PR_BODY" | grep -qi 'drop intended'; then
+            echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
+            echo "The pull request says the drop is intended."
+          fi
+
+      - name: Validate catalog.json
+        run: |
+          dart tools/validate_catalog.dart catalog.json ${BASE_FILE:-} ${VALIDATE_FLAGS:-} \
+            | tee /tmp/validate_report.txt
+
+      # The report is also shown on the run's summary page, so the owner can
+      # read "what changed" and any on-air warnings without opening the log.
+      - name: Publish the report on the run's summary page
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat /tmp/validate_report.txt 2>/dev/null || echo "(the checker produced no report)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
