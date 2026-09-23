@@ -12,7 +12,8 @@ phones that have already fetched it.
 
 Two things guard the file:
 
-- **`validate`** — a check that runs on every pull request and every push
+- **`validate`** — a check that runs on every pull request (again whenever its
+  description is edited) and on every push to main
   (`.github/workflows/validate.yml`). It refuses a file the app could read
   wrongly and shouts about changes that move what is on air. Once the merge lock
   below is switched on, GitHub greys out the Merge button until it passes.
@@ -48,7 +49,10 @@ a hand edit is how a whole catalogue once shipped unreadable. The path is:
    check runs; its report is on the run's summary page. If the change removes
    a channel or a big share of one channel's items **on purpose**, write the
    words `drop intended` in the pull request description, or the check refuses
-   it.
+   it. Editing the description is enough — the check runs again by itself, no
+   new commit needed. (After the merge, the push to main runs the check once
+   more; it cannot see the description, so it reports the drop as a warning
+   rather than refusing it — the pull request was the gate.)
 5. **Merge — the owner does this.** Merging is the deploy. Afterwards, fetch the
    live address and confirm it serves the new `version`:
    `https://raw.githubusercontent.com/ribfeast/free-tv-catalog/refs/heads/main/catalog.json`

@@ -3,9 +3,16 @@
 # Merging to main here is a release: every phone re-reads catalog.json within
 # minutes, and a broken file is read as "no channels" (that happened once, from
 # an invisible marker PowerShell put at the start of the file). This workflow
-# runs tools/validate_catalog.dart on every pull request and every push, and
-# GitHub can be told to grey out the Merge button until it has passed - see
-# README.md, "Turn on the merge lock", for the owner's one-time clicks.
+# runs tools/validate_catalog.dart on every pull request and on every push to
+# main, and GitHub can be told to grey out the Merge button until it has
+# passed - see README.md, "Turn on the merge lock", for the owner's one-time
+# clicks.
+#
+# The pull-request run repeats when the description is EDITED (see the
+# trigger below). Nothing runs on a push to any other branch: the pull
+# request already covers it, and a push-only run has no pull-request
+# description to read, so the "drop intended" rule would go red with no way
+# to clear it.
 #
 # The job is called "validate" on purpose: that is the name to pick in the
 # branch-protection settings. Rename it and the lock silently stops applying.
@@ -25,7 +32,13 @@ name: validate
 
 on:
   pull_request:
+    # `edited` is not one of GitHub's defaults (those are opened, synchronize
+    # and reopened). Without it, writing "drop intended" in the description
+    # AFTER seeing the red check does nothing until another commit is pushed,
+    # which is exactly the moment the README tells the owner to write it.
+    types: [opened, synchronize, reopened, edited]
   push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -49,32 +62,36 @@ jobs:
       # compares against to insist "version" went up, to spot channels or items
       # vanishing, and to shout when a change moves what is on air. Which
       # commit that is depends on what triggered the run:
-      #  * a pull request: the branch it will merge into;
-      #  * a push to main (a merge, i.e. a release): the commit before it;
-      #  * a push to any other branch: main itself. NOT the commit before,
-      #    which is what a first draft of this file used - a two-commit pull
-      #    request whose version was raised once, the normal way to work,
-      #    went red on its second commit because that commit changed the file
-      #    without raising the version again. What matters is always the
-      #    distance from what phones are reading today.
+      #  * a pull request: the branch it will merge into. NOT the commit
+      #    before, which is what a first draft of this file used - a
+      #    two-commit pull request whose version was raised once, the normal
+      #    way to work, went red on its second commit because that commit
+      #    changed the file without raising the version again. What matters
+      #    is always the distance from what phones are reading today;
+      #  * a push to main (a merge, i.e. a release): the commit before it.
       # When there is no base (a brand-new repository) the comparison is
       # skipped and the checker says so in its report.
+      #
+      # Removing a channel, or a big share of one channel's items, is refused
+      # unless the pull request says it is meant: the phrase to write in its
+      # description is exactly "drop intended", and editing the description
+      # re-runs this check. A push to main has no description to read (the
+      # pull request that was just merged is not part of a push event), so
+      # the push run passes --allow-drop and reports the drop as a warning:
+      # the pull-request run was the gate, and a red cross on main for a
+      # drop that was approved a minute earlier would only teach the owner
+      # to ignore red crosses.
       - name: Fetch the version of catalog.json that is live now
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
-          REF_NAME: ${{ github.ref_name }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           PUSH_BEFORE: ${{ github.event.before }}
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          live="${DEFAULT_BRANCH:-main}"
           if [ "$EVENT_NAME" = "pull_request" ]; then
             base="origin/$BASE_REF"
-          elif [ "$REF_NAME" = "$live" ]; then
-            base="$PUSH_BEFORE"
           else
-            base="origin/$live"
+            base="$PUSH_BEFORE"
           fi
           if git cat-file -e "$base:catalog.json" 2>/dev/null; then
             git show "$base:catalog.json" > /tmp/base_catalog.json
@@ -83,10 +100,10 @@ jobs:
           else
             echo "No base catalog.json at '$base' - the comparison is skipped."
           fi
-          # Removing a channel, or a big share of one channel's items, is
-          # refused unless the pull request says it is meant. The phrase to
-          # write in the description is exactly: drop intended
-          if printf '%s' "$PR_BODY" | grep -qi 'drop intended'; then
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
+            echo "This is a push to main: any drop was gated by the pull request, so it is reported, not refused."
+          elif printf '%s' "$PR_BODY" | grep -qi 'drop intended'; then
             echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
             echo "The pull request says the drop is intended."
           fi
