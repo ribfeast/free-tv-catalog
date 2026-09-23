@@ -214,12 +214,15 @@ void _run() {
       saying: 'would stall the channel');
   _expect('seconds: -5', _edit((c) => _item(c)['seconds'] = -5),
       saying: 'would stall the channel');
+  // These two are refused by the same line of the checker, so each case pins
+  // the value it planted as well as the rule, to prove ITS input was the one
+  // refused and not a neighbour's.
   _expect('seconds written as text (the app accepts this; we do not)',
       _edit((c) => _item(c)['seconds'] = '107'),
-      saying: '"seconds" must be a whole number');
+      saying: 'not 107.5 (found: "107")');
   _expect('seconds with a decimal point',
       _edit((c) => _item(c)['seconds'] = 107.5),
-      saying: '"seconds" must be a whole number');
+      saying: 'not 107.5 (found: 107.5)');
   _expect('the same address twice in one channel',
       _edit((c) => _item(c, 2)['url'] = _item(c, 1)['url']),
       saying: 'appears twice');
