@@ -1,0 +1,144 @@
+# Checks every change to catalog.json BEFORE it can reach the app.
+#
+# Merging to main here is a release: every phone re-reads catalog.json within
+# minutes, and a broken file is read as "no channels" (that happened once, from
+# an invisible marker PowerShell put at the start of the file). This workflow
+# runs tools/validate_catalog.dart on every pull request and on every push to
+# main, and GitHub can be told to grey out the Merge button until it has
+# passed - see README.md, "Turn on the merge lock", for the owner's one-time
+# clicks.
+#
+# The pull-request run repeats when the description is EDITED (see the
+# trigger below). Nothing runs on a push to any other branch: the pull
+# request already covers it, and a push-only run has no pull-request
+# description to read, so the "drop intended" rule would go red with no way
+# to clear it.
+#
+# The job is called "validate" on purpose: that is the name to pick in the
+# branch-protection settings. Rename it and the lock silently stops applying.
+#
+# Safety notes for anyone editing this file:
+#  * The workflow can only READ the repository (permissions below). It needs
+#    nothing more, and a token that could write would be worth stealing.
+#  * It runs on `pull_request`, never `pull_request_target`. The latter runs
+#    with write access on code from a stranger's fork, which is how public
+#    repos get their tokens taken.
+#  * Third-party actions are pinned to a commit SHA, not a tag. A tag can be
+#    moved to point at different code; a SHA cannot.
+#  * The pull-request description is read through an environment variable,
+#    never pasted into the script, so text in it cannot run as commands.
+
+name: validate
+
+on:
+  pull_request:
+    # `edited` is not one of GitHub's defaults (those are opened, synchronize
+    # and reopened). Without it, writing "drop intended" in the description
+    # AFTER seeing the red check does nothing until another commit is pushed,
+    # which is exactly the moment the README tells the owner to write it.
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository (with history, to find the base file)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install Dart
+        uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+        with:
+          sdk: stable
+
+      # The "base" is the catalog.json that is LIVE NOW, which the checker
+      # compares against to insist "version" went up, to spot channels or items
+      # vanishing, and to shout when a change moves what is on air. Which
+      # commit that is depends on what triggered the run:
+      #  * a pull request: the branch it will merge into. NOT the commit
+      #    before, which is what a first draft of this file used - a
+      #    two-commit pull request whose version was raised once, the normal
+      #    way to work, went red on its second commit because that commit
+      #    changed the file without raising the version again. What matters
+      #    is always the distance from what phones are reading today;
+      #  * a push to main (a merge, i.e. a release): the commit before it.
+      # When there is no base (a brand-new repository) the comparison is
+      # skipped and the checker says so in its report.
+      #
+      # Removing a channel, or a big share of one channel's items, is refused
+      # unless the pull request says it is meant: the phrase to write in its
+      # description is exactly "drop intended", and editing the description
+      # re-runs this check. A push to main has no description to read (the
+      # pull request that was just merged is not part of a push event), so
+      # the push run passes --allow-drop and reports the drop as a warning:
+      # the pull-request run was the gate, and a red cross on main for a
+      # drop that was approved a minute earlier would only teach the owner
+      # to ignore red crosses.
+      - name: Fetch the version of catalog.json that is live now
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="origin/$BASE_REF"
+          else
+            base="$PUSH_BEFORE"
+          fi
+          if git cat-file -e "$base:catalog.json" 2>/dev/null; then
+            git show "$base:catalog.json" > /tmp/base_catalog.json
+            echo "BASE_FILE=/tmp/base_catalog.json" >> "$GITHUB_ENV"
+            echo "Comparing with catalog.json from $base"
+          else
+            echo "No base catalog.json at '$base' - the comparison is skipped."
+          fi
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
+            echo "This is a push to main: any drop was gated by the pull request, so it is reported, not refused."
+          elif printf '%s' "$PR_BODY" | grep -qi 'drop intended'; then
+            echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
+            echo "The pull request says the drop is intended."
+          fi
+
+      # The report is written to a file and printed afterwards, on purpose, and
+      # the step exits with the CHECKER's status. The obvious one-liner,
+      # `dart ... | tee report`, is a trap: GitHub's default shell for `run`
+      # is bash WITHOUT pipefail, so a pipeline's status is the last command's
+      # - tee's, always 0 - and the step stayed green while the report said
+      # FAIL. The merge lock would never have turned red.
+      - name: Validate catalog.json
+        run: |
+          status=0
+          dart tools/validate_catalog.dart catalog.json ${BASE_FILE:-} ${VALIDATE_FLAGS:-} \
+            > /tmp/validate_report.txt 2>&1 || status=$?
+          cat /tmp/validate_report.txt
+          exit "$status"
+
+      # A checker that has quietly stopped checking is worse than none, because
+      # its green tick goes on being believed. So once the real file has been
+      # accepted, the self-test damages copies of it - one per rule - and
+      # insists each copy is refused for the right reason. It runs AFTER the
+      # checker, not before: given a file that is not even JSON it used to die
+      # with a stack trace and the checker never ran, so a deleted comma read
+      # as "the checker is broken" instead of "your file is not valid JSON".
+      - name: Prove the checker still refuses what it says it refuses
+        run: dart tools/validate_catalog_selftest.dart catalog.json
+
+      # The report is also shown on the run's summary page, so the owner can
+      # read "what changed" and any on-air warnings without opening the log.
+      - name: Publish the report on the run's summary page
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat /tmp/validate_report.txt 2>/dev/null || echo "(the checker produced no report)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

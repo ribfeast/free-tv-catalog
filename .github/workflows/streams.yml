@@ -1,0 +1,111 @@
+# Weekly sweep: does every stream in catalog.json still play?
+#
+# Streams die without warning and the app cannot tell anyone - a dead channel
+# is just a spinner. Four of nine channels once sat dead for weeks behind a
+# healthy-looking "200 OK". check-streams.sh finds that (it follows a variant
+# playlist, the only check that proves a stream is alive), but until now it
+# only ran when someone remembered. This runs it every Monday morning and, when
+# something is dead, OPENS OR UPDATES A GITHUB ISSUE - a thing the owner will
+# meet on the repository's page. It does not rely on email: GitHub only emails
+# a failed scheduled run to whoever last edited this file.
+#
+# THE 60-DAY TRAP, and the working rule that goes with it:
+# GitHub switches off scheduled workflows in a public repository after 60 days
+# with no repository activity (no commits, no pull requests). This catalogue
+# can easily go two months without a change - and that is exactly when streams
+# rot unnoticed - so the sweep can silently stop, which is the failure it
+# exists to prevent. The rule: EVERY SESSION THAT TOUCHES THE CATALOGUE LOOKS
+# AT THE DATE OF THE LAST "streams" RUN on the Actions tab, and treats anything
+# older than 8 days as a failure to be reported. If GitHub has disabled it, the
+# Actions tab shows an "Enable workflow" button on this workflow; press it (or
+# run it by hand with "Run workflow", which also resets the clock).
+#
+# Safety notes:
+#  * The job needs `issues: write` to open the issue. That permission is
+#    granted to this job only, on top of a read-only default, and never to the
+#    validate workflow.
+#  * There is no `pull_request_target` here and nothing from outside the
+#    repository is run.
+#  * FIRST RUN: compare its result with `bash check-streams.sh` run at home.
+#    The eight video hosts may answer GitHub's data-centre addresses differently
+#    from a home connection; if they do, the sweep would cry wolf, and a
+#    warning that cries wolf gets ignored.
+
+name: streams
+
+on:
+  schedule:
+    # 06:17 UTC every Monday. Not on the hour: GitHub's queues are busiest then
+    # and a scheduled run can be delayed or skipped.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    # ~340 addresses, each with a 25-30 s timeout: a bad day is long.
+    timeout-minutes: 240
+    permissions:
+      contents: read
+      issues: write
+    env:
+      ISSUE_TITLE: "Dead streams found by the weekly sweep"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check every stream
+        id: sweep
+        run: |
+          set +e
+          bash check-streams.sh | tee /tmp/sweep.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "dead=$(grep -c '^DEAD' /tmp/sweep.txt || true)" >> "$GITHUB_OUTPUT"
+
+      # The issue is the durable signal. One open issue is kept per outbreak:
+      # a new dead stream adds a comment to it rather than opening another,
+      # and when everything is alive again the issue is closed with a note.
+      - name: Open, update or close the "dead streams" issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STATUS: ${{ steps.sweep.outputs.status }}
+          DEAD: ${{ steps.sweep.outputs.dead }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          existing=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" \
+                       --json number --jq '.[0].number // empty')
+          if [ "$STATUS" != "0" ]; then
+            {
+              echo "The weekly sweep on $(date -u +%Y-%m-%d) found **$DEAD dead address(es)**"
+              echo "(exit status $STATUS). Full log: $RUN_URL"
+              echo
+              echo "A dead address shows viewers a spinner that never ends. Each line below"
+              echo "names the FILE, not the channel: search catalog.json for the name to find"
+              echo "which channel it belongs to. Fix it in that channel's manifest and"
+              echo "publish through a pull request (see README.md)."
+              echo
+              echo '```'
+              grep '^DEAD' /tmp/sweep.txt || echo "(no DEAD lines - the script itself failed; read the log)"
+              echo '```'
+            } > /tmp/issue_body.md
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body-file /tmp/issue_body.md
+              echo "Updated issue #$existing"
+            else
+              gh issue create --title "$ISSUE_TITLE" --body-file /tmp/issue_body.md
+            fi
+            # Red on the Actions tab too, so the failure is visible in both places.
+            exit 1
+          fi
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "The sweep on $(date -u +%Y-%m-%d) found every address alive again. Closing. Log: $RUN_URL"
+            gh issue close "$existing"
+            echo "Closed issue #$existing"
+          fi
+          echo "All addresses alive."
