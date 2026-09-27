@@ -43,9 +43,10 @@
 #    is no safe way to pair them in shell, so it does not try.
 #
 # 3. It says WHY an address failed (HTTP 404, host not found, no answer in
-#    time) and which host it was. "DEAD" alone sent people to the wrong fix:
-#    one measured host took 12-20 s just to open each connection, so its files
-#    were slow, not gone.
+#    time) and which host it was. "DEAD" alone cannot tell a deleted file from
+#    a slow host: one host measured on 2026-09-19 took 12-20 s just to open
+#    each connection, 9 of its 114 files timed out, and 3 of those played when
+#    tried again.
 
 set -u
 
