@@ -14,12 +14,14 @@
 // that plays every part: a video that works, one that is gone, one that fails
 // once and then works, one that never answers, a live stream, a live stream
 // whose picture is gone behind a healthy master playlist, a web page posing as
-// a playlist, and a catalogue whose "version" changes part-way through. Each
-// check is run as a separate program, exactly as the workflows run it, and
-// every case must come out the way it says.
+// a playlist, live addresses that redirect (one to a second server standing
+// in for another host), a playlist with Windows line endings, and a
+// catalogue whose "version" changes part-way through. Each check is run as a
+// separate program, exactly as the workflows run it, and every case must come
+// out the way it says.
 //
 // Needs bash and curl on the PATH (on Windows, run it from Git Bash). About
-// 20 seconds, most of it the address that never answers.
+// 45 seconds, most of it addresses that never answer or answer slowly.
 
 import 'dart:async';
 import 'dart:convert';
@@ -28,6 +30,11 @@ import 'dart:io';
 late final HttpServer _server;
 late final String _origin;
 late final Directory _temp;
+
+/// A second server, standing in for a CDN edge on another host: a live
+/// stream's first address often redirects to one.
+late final HttpServer _edge;
+late final String _edgeOrigin;
 
 /// How many times each path has been asked for.
 final _hits = <String, int>{};
@@ -44,6 +51,9 @@ Future<void> main() async {
   _server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
   _origin = 'http://127.0.0.1:${_server.port}';
   _server.listen(_serve);
+  _edge = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+  _edgeOrigin = 'http://127.0.0.1:${_edge.port}';
+  _edge.listen(_serveEdge);
   try {
     stdout.writeln('check-streams.sh:');
     await _streamCases();
@@ -51,6 +61,7 @@ Future<void> main() async {
     await _liveCases();
   } finally {
     await _server.close(force: true);
+    await _edge.close(force: true);
     _temp.deleteSync(recursive: true);
   }
   stdout.writeln();
@@ -105,6 +116,21 @@ Future<void> _serve(HttpRequest request) async {
       case '/bom/catalog.json':
         _reply(response, 200,
             [0xEF, 0xBB, 0xBF, ...utf8.encode('{"version": 8, "channels": []}')]);
+      case '/r/moved.m3u8':
+        // A tokenised entry point: the playlist is really somewhere else, and
+        // the address it moves to has a query with a slash in it.
+        _redirect(response, '$_origin/l/good.m3u8?token=a/b');
+      case '/r/away.m3u8':
+        _redirect(response, '$_edgeOrigin/edge/master.m3u8');
+      case '/rv/master.m3u8':
+        _reply(response, 200,
+            '#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=800000\njump/index.m3u8\n');
+      case '/rv/jump/index.m3u8':
+        _redirect(response, '$_origin/l/low/index.m3u8');
+      case '/c/crlf.m3u8':
+        _reply(response, 200, _goodMaster.replaceAll('\n', '\r\n'));
+      case '/c/low/index.m3u8':
+        _reply(response, 200, _goodMedia.replaceAll('\n', '\r\n'));
       default:
         _reply(response, 404, 'Not found');
     }
@@ -112,6 +138,31 @@ Future<void> _serve(HttpRequest request) async {
   } on Object {
     // The client hung up first (the address that never answers). Expected.
   }
+}
+
+/// The other host. Its master playlist names its picture with a "/..."
+/// address, which means THIS host - not the one that redirected here.
+Future<void> _serveEdge(HttpRequest request) async {
+  final response = request.response;
+  try {
+    switch (request.uri.path) {
+      case '/edge/master.m3u8':
+        _reply(response, 200,
+            '#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=800000\n/edge/low/index.m3u8\n');
+      case '/edge/low/index.m3u8':
+        _reply(response, 200, _goodMedia);
+      default:
+        _reply(response, 404, 'Not found');
+    }
+    await response.close();
+  } on Object {
+    // The client hung up first. Expected.
+  }
+}
+
+void _redirect(HttpResponse response, String to) {
+  response.statusCode = HttpStatus.found;
+  response.headers.set(HttpHeaders.locationHeader, to);
 }
 
 void _reply(HttpResponse response, int status, Object body) {
@@ -226,6 +277,34 @@ Future<void> _streamCases() async {
       ['--catalog', base, '--new-since', '${_slashes(_temp.path)}/missing.json']);
   _check('a base file that is not there: exit 64, not "everything is new"', f,
       f.code == 64 && f.out.contains('No such file'));
+
+  // Live streams the way CDNs serve them. Players follow a redirect, so the
+  // check must too, and must look for the picture where the playlist MOVED
+  // to: next to it, on its host, without its query.
+  final g = await streams([
+    '--catalog',
+    _catalogue('cdn', [
+      _u('/r/moved.m3u8'),
+      _u('/r/away.m3u8'),
+      _u('/rv/master.m3u8'),
+      _u('/c/crlf.m3u8'),
+      _u('/l/missing.m3u8'),
+    ]),
+    '--timeout', '2', //
+  ]);
+  _check('a live address that redirects: OK, picture found where it moved to',
+      g, g.has(r'^OK +moved\.m3u8 +\(2 segments\)$'));
+  _check('a redirect to another host: a "/..." picture address means that host',
+      g, g.has(r'^OK +away\.m3u8 +\(2 segments\)$'));
+  _check('a picture playlist that redirects: OK', g,
+      g.has(r'^OK +master\.m3u8 +\(2 segments\)$'));
+  // This case can only fail on Linux (the GitHub runner): Git Bash's grep on
+  // Windows drops the CR by itself, so there the old script passed it too.
+  _check('a playlist written with Windows line endings: OK', g,
+      g.has(r'^OK +crlf\.m3u8 +\(2 segments\)$'));
+  _check('a live stream that is gone: DEAD, HTTP 404 (not "not a manifest")', g,
+      g.code == 1 &&
+          g.has(r'^DEAD +missing\.m3u8 +HTTP 404  \[host 127\.0\.0\.1\]$'));
 }
 
 // ---------------------------------------------------------------------------

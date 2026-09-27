@@ -47,6 +47,11 @@
 #    a slow host: one host measured on 2026-09-19 took 12-20 s just to open
 #    each connection, 9 of its 114 files timed out, and 3 of those played when
 #    tried again.
+#
+# And one thing players do that it copies: a live address may REDIRECT (a
+# tokenised CDN entry point usually does), and the picture playlist is then
+# looked for next to where the address ended up - on that host, without the
+# first address's query - not where it started.
 
 set -u
 
@@ -127,7 +132,7 @@ curl_reason() {
 
 # One attempt at one address. Prints what happened; succeeds if it plays.
 probe_once() {
-  local url=$1 tmp=$2 code rc body variant vurl
+  local url=$1 tmp=$2 code rc out here variant vurl
 
   # Progressive files (mp4 etc.) just need to be fetchable.
   if ! printf '%s' "$url" | grep -q '\.m3u8'; then
@@ -141,30 +146,46 @@ probe_once() {
     return 1
   fi
 
-  body=$(curl -sS --max-time "$TIMEOUT" -A "$UA" "$url" 2>/dev/null)
+  # -L: follow a redirect, as players do. %{url_effective} is where the
+  # playlist was finally found, which is what its own addresses are relative
+  # to.
+  rm -f "$tmp.master" "$tmp.variant"
+  out=$(curl -sS -L -o "$tmp.master" -w '%{http_code} %{url_effective}' \
+          --max-time "$TIMEOUT" -A "$UA" "$url" 2>/dev/null)
   rc=$?
-  if ! printf '%s' "$body" | head -1 | grep -q '#EXTM3U'; then
+  code=${out%% *}
+  case "$out" in *' '*) here=${out#* } ;; *) here=$url ;; esac
+  case "$code" in
+    2??) ;;
+    000|'') curl_reason "$rc"; return 1 ;;
+    *) echo "HTTP $code"; return 1 ;;
+  esac
+  if ! head -1 "$tmp.master" 2>/dev/null | grep -q '#EXTM3U'; then
     if [ "$rc" -ne 0 ]; then curl_reason "$rc"; else echo "master is not a manifest"; fi
     return 1
   fi
 
-  variant=$(printf '%s' "$body" | grep -v '^#' | grep -m1 '\.m3u8')
+  # tr: a playlist may have Windows line endings. Players ignore the CR; left
+  # in, it would end up inside the address and curl would refuse it.
+  variant=$(grep -v '^#' "$tmp.master" | tr -d '\r' | grep -m1 '\.m3u8')
   if [ -z "$variant" ]; then
     echo "(single media playlist)"
     return 0
   fi
+  # A query belongs to the playlist's own address, not to its neighbours
+  # (and a token in it can contain "/", which would move the folder).
+  here=${here%%\?*}
   case "$variant" in
     http*) vurl="$variant" ;;
-    /*)    vurl="$(printf '%s' "$url" | sed -E 's#(https?://[^/]+).*#\1#')$variant" ;;
-    *)     vurl="$(dirname "$url")/$variant" ;;
+    /*)    vurl="$(printf '%s' "$here" | sed -E 's#(https?://[^/]+).*#\1#')$variant" ;;
+    *)     vurl="$(dirname "$here")/$variant" ;;
   esac
 
-  rm -f "$tmp"
-  code=$(curl -sS -o "$tmp" -w '%{http_code}' --max-time "$TIMEOUT" -A "$UA" \
-           "$vurl" 2>/dev/null)
+  code=$(curl -sS -L -o "$tmp.variant" -w '%{http_code}' --max-time "$TIMEOUT" \
+           -A "$UA" "$vurl" 2>/dev/null)
   rc=$?
-  if [ "$code" = "200" ] && head -1 "$tmp" 2>/dev/null | grep -q '#EXTM3U'; then
-    echo "($(grep -c '\.ts\|\.m4s' "$tmp") segments)"
+  if [ "$code" = "200" ] && head -1 "$tmp.variant" 2>/dev/null | grep -q '#EXTM3U'; then
+    echo "($(grep -c '\.ts\|\.m4s' "$tmp.variant") segments)"
     return 0
   fi
   if [ "$code" = "000" ]; then echo "variant: $(curl_reason "$rc")"; else echo "variant HTTP $code"; fi
@@ -179,7 +200,7 @@ probe() {
   label=$(basename "${url%%\?*}" | cut -c1-46)
   host=$(printf '%s' "$url" | sed -E 's#^[A-Za-z]+://([^/?#]*).*#\1#; s#.*@##; s#:[0-9]*$##')
   while :; do
-    if detail=$(probe_once "$url" "$WORK/variant.$index"); then
+    if detail=$(probe_once "$url" "$WORK/playlist.$index"); then
       [ "$try" -gt 1 ] && detail="$detail - played on try $try, after: $first"
       line=$(printf 'OK    %-46s %s' "$label" "$detail")
       break
