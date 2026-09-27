@@ -79,6 +79,153 @@ a hand edit is how a whole catalogue once shipped unreadable. The path is:
    (`app/assets/free_tv_catalog.json`) so a fresh install starts with the same
    channels.
 
+## Roll back — put the last good channel list back
+
+Use this when a merged change turns out to be bad: a channel that only spins,
+the wrong programmes, or no channels at all. It puts back the last file that
+was good, under a **new** version number, through the same pull request and
+check as any other change. Allow about fifteen minutes, most of it waiting for
+the check and the file server.
+
+**Do not use GitHub's Revert button.** It puts back the old file *with its old
+version number*, and the check refuses a file whose version did not go up (the
+number is how anyone can tell which list a phone, or the live address, is
+serving). A rollback is the old file under the next number.
+
+Phones pick up the good list the next time the app is opened; a phone that
+already fetched the bad one keeps it until then.
+
+Open **Windows PowerShell** and keep that one window open to the end — later
+steps reuse numbers that earlier steps remember. Paste one block at a time and
+read its **Check** before going on.
+
+1. Go to the catalogue folder, make sure nothing is half-done there, and bring
+   main up to date.
+
+   ```
+   cd C:\Users\james\free-tv-catalog; git status --short
+   ```
+
+   **Check:** it prints nothing. If it lists files, stop — something
+   unfinished is sitting in this folder, and git would refuse the next step.
+
+   ```
+   git switch main; git pull; $main = (Get-Content -Raw -Encoding UTF8 catalog.json | ConvertFrom-Json).version; "main is at version $main"
+   ```
+
+   **Check:** the last line is `main is at version 9` (your number): the
+   version of the bad list.
+
+2. Find the last good version. This lists the latest changes to the channel
+   list, newest first, each with the version it carried:
+
+   ```
+   git log --format="%h %ad %s" --date=short -8 -- catalog.json | ForEach-Object { $v = (git show "$($_.Split(' ')[0]):catalog.json" | Select-String '"version"' | Select-Object -First 1).Line -replace '\D', ''; "version $v   $_" }
+   ```
+
+   The good file is the **newest line with a lower version than main's** —
+   usually main's number minus one. Put that line's commit (the 7 characters
+   after the version) into `$good`, in place of `a66ad2b` below:
+
+   ```
+   $good = 'a66ad2b'; git show --no-patch --format="%h %s" $good
+   ```
+
+   **Check:** it prints that commit and its description again. An error means
+   the 7 characters were copied wrong.
+
+3. Make a branch and put that file back.
+
+   ```
+   git switch -c "rollback/to-$good"; git restore --source $good -- catalog.json; git status --short
+   ```
+
+   **Check:** the last line is ` M catalog.json`, and nothing else is listed.
+
+4. Give it the next number: the live version plus one. First fetch the file
+   phones are reading now:
+
+   ```
+   Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/ribfeast/free-tv-catalog/refs/heads/main/catalog.json -OutFile "$env:TEMP\live-catalog.json"; $live = (Get-Content -Raw -Encoding UTF8 "$env:TEMP\live-catalog.json" | ConvertFrom-Json).version; "live: $live   main: $main"
+   ```
+
+   **Check:** the two numbers are the same. If `live` is lower, the bad change
+   has not even reached phones yet: wait five minutes and run this block again.
+
+   Then write the new number into the restored file. (It is written with .NET
+   rather than `Set-Content` on purpose: PowerShell 5.1's `Set-Content` adds
+   the invisible marker that once made this file unreadable to every phone.)
+
+   ```
+   $new = $live + 1; $path = (Resolve-Path catalog.json).Path; $text = [IO.File]::ReadAllText($path); $text = ([regex]'"version":\s*\d+').Replace($text, '"version": ' + $new, 1); [IO.File]::WriteAllText($path, $text, (New-Object Text.UTF8Encoding $false)); "new version: $new"
+   ```
+
+   **Check:** it prints `new version: 10` (live plus one).
+
+5. Run the checker, comparing with the live file.
+
+   ```
+   dart tools/validate_catalog.dart catalog.json "$env:TEMP\live-catalog.json"
+   ```
+
+   **Check:** under WHAT CHANGED it says `version 9 -> 10` (your numbers) and
+   the last line is `RESULT: PASS`. Warnings in capitals about what is on air
+   are expected — a rollback moves programmes on purpose.
+
+   If the last line is `RESULT: FAIL`, read the FAILURES:
+   - A failure saying a channel `is REMOVED`, `falls from N to M items`, or
+     `now needs app feature level` is a **drop**: the good file lacks
+     something the bad one added. That is normal when undoing an addition. Run
+     the same command again with ` --allow-drop` added at the end. It must now
+     end in `RESULT: PASS`, and you **must** write `drop intended` in step 7.
+   - Anything else: stop. The old file is refused by today's rules and cannot
+     go out as it is; ask a Claude session to fix it on this branch.
+
+6. Save the branch on GitHub.
+
+   ```
+   git add catalog.json; git commit -m "Roll back catalog.json to $good as version $new"; git push -u origin "rollback/to-$good"
+   ```
+
+   **Check:** the output includes `check-secrets: clean` and a line ending in
+   `-> rollback/to-` and the 7 characters.
+
+7. Open the pull request. On github.com, open **ribfeast/free-tv-catalog**; a
+   yellow bar offers **Compare & pull request** for the rollback branch — press
+   it. In the description, say what went wrong. **If step 5 found a drop, write
+   the words `drop intended` anywhere in the description** — the check looks
+   for exactly those two words, one space apart; capitals do not matter. Press
+   **Create pull request**.
+
+   **Check:** the `validate` check turns green. It can take several minutes:
+   addresses the bad change had removed are "new" again and are test-played.
+   If it goes red, press **Details** — the report says why. Forgot `drop
+   intended`? Edit the description; the check runs again by itself.
+
+8. Merge: **Merge pull request**, then **Confirm merge** — only with the green
+   tick. Then, back in the same PowerShell window:
+
+   ```
+   dart tools/live_version.dart --wait-for $new
+   ```
+
+   **Check:** within 10 minutes it prints `PUBLISHED: the live address serves
+   version 10` (your number). The `published` job on the Actions tab says the
+   same. Until then, phones are still being given the bad list.
+
+9. Tidy up.
+
+   ```
+   git switch main; git pull; git branch -d "rollback/to-$good"; git status --short
+   ```
+
+   **Check:** the last command prints nothing. (GitHub deletes its copy of the
+   branch by itself after the merge.)
+
+10. If the bad list had also been copied into the app's bundled seed
+    (`app/assets/free_tv_catalog.json` in the app repo), copy this file over
+    the seed too, as in step 6 of *How to change channels*.
+
 ## What the `validate` check refuses
 
 The app's own parser is *forgiving*: it silently skips anything it does not
