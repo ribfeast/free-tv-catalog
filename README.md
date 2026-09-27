@@ -116,16 +116,26 @@ read its **Check** before going on.
    **Check:** the last line is `main is at version 9` (your number): the
    version of the bad list.
 
-2. Find the last good version. This lists the latest changes to the channel
-   list, newest first, each with the version it carried:
+2. Find the last good version. This lists the channel lists main has served,
+   newest first, each with its version:
 
    ```
-   git log --format="%h %ad %s" --date=short -8 -- catalog.json | ForEach-Object { $v = (git show "$($_.Split(' ')[0]):catalog.json" | Select-String '"version"' | Select-Object -First 1).Line -replace '\D', ''; "version $v   $_" }
+   git log --first-parent --format="%h %ad %s" --date=short -8 -- catalog.json | ForEach-Object { $v = (git show "$($_.Split(' ')[0]):catalog.json" | Select-String '"version"' | Select-Object -First 1).Line -replace '\D', ''; "version $v   $_" }
    ```
 
-   The good file is the **newest line with a lower version than main's** —
-   usually main's number minus one. Put that line's commit (the 7 characters
-   after the version) into `$good`, in place of `a66ad2b` below:
+   (`--first-parent` is not optional. Without it the list also shows the
+   commits from *inside* each pull request, which were never live, and one
+   of them can hold the bad change under the old version number: picked by
+   mistake, it passes every check and publishes the bad list again.)
+
+   Each line is a list that main actually served. The top line is the bad
+   one (main's version). The good one is normally the line **just below the
+   top**; its description will usually read `Merge pull request #N ...` (the
+   oldest lines, from before changes went through pull requests, read like
+   `Add "Earth" (version 8)`). If the bad change arrived in more than one
+   pull request, go down to the line just below the first of them. Put that
+   line's commit (the 7 characters after the version) into `$good`, in place
+   of `a66ad2b` below:
 
    ```
    $good = 'a66ad2b'; git show --no-patch --format="%h %s" $good
