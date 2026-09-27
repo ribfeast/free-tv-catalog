@@ -132,7 +132,15 @@ Future<void> _serve(HttpRequest request) async {
       case '/c/low/index.m3u8':
         _reply(response, 200, _goodMedia.replaceAll('\n', '\r\n'));
       default:
-        _reply(response, 404, 'Not found');
+        if (path.startsWith('/ok/')) {
+          // Every file here plays; one with "lag" in its name takes 3 s to.
+          if (path.contains('lag')) {
+            await Future<void>.delayed(const Duration(seconds: 3));
+          }
+          _reply(response, 200, List<int>.filled(2048, 0));
+        } else {
+          _reply(response, 404, 'Not found');
+        }
     }
     await response.close();
   } on Object {
@@ -208,8 +216,9 @@ String _catalogue(String name, List<String> urls) {
 
 Future<void> _streamCases() async {
   final script = _slashes(Platform.script.resolve('../check-streams.sh').toFilePath());
-  Future<_Result> streams(List<String> args) =>
-      _run('bash', [script, ...args]);
+  Future<_Result> streams(List<String> args,
+          {Map<String, String>? environment}) =>
+      _run('bash', [script, ...args], environment: environment);
 
   final base = _catalogue('base', [_u('/v/old.mp4')]);
   final mixed = _catalogue('mixed', [
@@ -305,6 +314,46 @@ Future<void> _streamCases() async {
   _check('a live stream that is gone: DEAD, HTTP 404 (not "not a manifest")', g,
       g.code == 1 &&
           g.has(r'^DEAD +missing\.m3u8 +HTTP 404  \[host 127\.0\.0\.1\]$'));
+
+  // The pull request's time budget: a whole channel on a host that never
+  // answers would otherwise outlast the job and leave no verdict at all.
+  final lagging = _catalogue('lagging', [_u('/ok/1-lag.mp4'), _u('/ok/2-next.mp4')]);
+  final h = await streams(
+      ['--catalog', lagging, '--timeout', '6', '--time-limit', '2']);
+  _check('--time-limit: an address not started in time is SKIP, exit 3', h,
+      h.code == 3 &&
+          h.has(r'^OK +1-lag\.mp4 ') &&
+          h.has(r'^SKIP +2-next\.mp4 +not tried') &&
+          _hits['/ok/2-next.mp4'] == null &&
+          h.out.contains('1 of 2 address(es) were not tried'));
+
+  // "streams checked by hand" in a pull request: the one way past a verdict
+  // the owner knows is wrong. It must still NAME what failed.
+  final i = await streams([
+    '--catalog', _catalogue('accepted', [_u('/v/ok.mp4'), _u('/v/gone.mp4')]),
+    '--timeout', '2', '--checked-by-hand', //
+  ]);
+  _check('--checked-by-hand: a dead address is still named, then let through',
+      i,
+      i.code == 0 &&
+          i.has(r'^DEAD +gone\.mp4 +HTTP 404') &&
+          i.has(r'^ACCEPTED: '));
+  final j = await streams([
+    '--catalog', lagging, '--timeout', '6', '--time-limit', '2',
+    '--checked-by-hand', //
+  ]);
+  _check('--checked-by-hand also lets through what the time limit left untried',
+      j, j.code == 0 && j.has(r'^SKIP +2-next\.mp4') && j.has(r'^ACCEPTED: '));
+
+  // A run that loses a result must never read as a pass: without the guard,
+  // two missing results out of three would print "All 3 played".
+  final k = await streams([
+    '--catalog',
+    _catalogue('crash', [_u('/ok/a.mp4'), _u('/ok/b.mp4'), _u('/ok/c.mp4')]),
+    '--timeout', '2', '--checked-by-hand', //
+  ], environment: {'CHECK_STREAMS_SELFTEST_CRASH_AT': '2'});
+  _check('a run that misses a result: exit 2 - even with --checked-by-hand', k,
+      k.code == 2 && k.out.contains('only 1 of 3 addresses got a result'));
 }
 
 // ---------------------------------------------------------------------------
@@ -378,9 +427,10 @@ class _Result {
 
 /// Runs a program WITHOUT blocking: the pretend internet lives in this same
 /// program, and a blocking run would stop it answering.
-Future<_Result> _run(String executable, List<String> args) async {
+Future<_Result> _run(String executable, List<String> args,
+    {Map<String, String>? environment}) async {
   final result = await Process.run(executable, args,
-      stdoutEncoding: utf8, stderrEncoding: utf8);
+      environment: environment, stdoutEncoding: utf8, stderrEncoding: utf8);
   final out = '${result.stdout}${result.stderr}'.replaceAll('\r\n', '\n');
   return _Result(result.exitCode, out);
 }

@@ -22,7 +22,10 @@
 # trigger below). Nothing runs on a push to any other branch: the pull
 # request already covers it, and a push-only run has no pull-request
 # description to read, so the "drop intended" rule would go red with no way
-# to clear it.
+# to clear it. The description can say two things, each a way past a red
+# that is known to be wrong: "drop intended" (a channel or items removed on
+# purpose) and "streams checked by hand" (the test-play's DEAD or SKIP lines
+# are wrong - see that step).
 #
 # The job is called "validate" on purpose: that is the name picked in the
 # branch-protection settings. Rename it and the lock silently stops applying.
@@ -61,7 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     # Most runs take a minute or two. The long tail is test-playing a new
     # channel from a slow host: one host measured on 2026-09-19 took 12-20 s
-    # just to open each connection, and a channel can have 150 files.
+    # just to open each connection, and a channel can have 150 files. The
+    # test-play starts no new address after 25 minutes, and its step is
+    # allowed 35.
     timeout-minutes: 45
     steps:
       - name: Check out the repository (with history, to find the base file)
@@ -124,6 +129,11 @@ jobs:
             echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
             echo "The pull request says the drop is intended."
           fi
+          if [ "$EVENT_NAME" = "pull_request" ] &&
+             printf '%s' "$PR_BODY" | grep -qi 'streams checked by hand'; then
+            echo "STREAMS_FLAGS=--checked-by-hand" >> "$GITHUB_ENV"
+            echo "The pull request says its new stream addresses were checked by hand."
+          fi
 
       # The report is written to a file and printed afterwards, on purpose, and
       # the step exits with the CHECKER's status. The obvious one-liner,
@@ -165,26 +175,61 @@ jobs:
       # dead address is named with its host. It runs on every pull-request
       # run, including a description edit, so an edit can never turn a red
       # test-play green without the addresses being tried again.
+      #
+      # A time limit keeps the verdict inside the step: no new address is
+      # started after 25 minutes (1500 s), and one already started finishes
+      # within about 4 more, well inside the step's 35. Addresses never
+      # reached are listed as SKIP. Without it, a whole channel on a host that
+      # never answers (150 files x 2 tries x 60 s / 4 at a time = 75 minutes)
+      # would be cut off by GitHub with no verdict and nothing to override.
+      #
+      # THE WAY PAST A WRONG VERDICT. This step is part of the required
+      # "validate" check, which nobody can bypass - the owner included - so,
+      # like "drop intended", it has its own words: when the description says
+      # "streams checked by hand", every address is still tried and every
+      # DEAD or SKIP line still printed, and then the step passes. It is for
+      # a host that refuses GitHub's servers but plays on phones, a host too
+      # slow for the time limit, or a rollback that puts back an address the
+      # bad change had replaced. A run in which the check itself went wrong
+      # (exit 2) is never let through.
+      #
+      # The report is shown AS IT RUNS (tee), so the log keeps every result
+      # so far even if GitHub stops the step. As explained above "Validate
+      # catalog.json", a pipeline's own status is tee's, so the script's is
+      # read from PIPESTATUS, with -e off around it.
       - name: Test-play the stream addresses this pull request adds
         if: github.event_name == 'pull_request'
         timeout-minutes: 35
         run: |
-          status=0
+          args=(--timeout 60 --retries 1 --jobs 4 --time-limit 1500 ${STREAMS_FLAGS:-})
+          : > /tmp/streams_report.txt
           if [ -n "${BASE_FILE:-}" ]; then
-            bash check-streams.sh --new-since "$BASE_FILE" \
-              --timeout 60 --retries 1 --jobs 4 > /tmp/streams_report.txt 2>&1 || status=$?
+            args=(--new-since "$BASE_FILE" "${args[@]}")
           else
-            echo "No base file, so every address counts as new." > /tmp/streams_report.txt
-            bash check-streams.sh --timeout 60 --retries 1 --jobs 4 \
-              >> /tmp/streams_report.txt 2>&1 || status=$?
+            echo "No base file, so every address counts as new." | tee -a /tmp/streams_report.txt
           fi
-          cat /tmp/streams_report.txt
-          if [ "$status" -ne 0 ]; then
-            echo
-            echo "An address this change adds did not play (report above: DEAD lines name the file"
-            echo "and its host). Fix the address in the channel's manifest, or, if the host was"
-            echo "only slow today, re-run this job. Phones would have shown a spinner."
-          fi
+          set +e
+          bash check-streams.sh "${args[@]}" 2>&1 | tee -a /tmp/streams_report.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          {
+            case "$status" in
+              0) ;;
+              1|3)
+                echo
+                echo "Not every address this change adds was shown to play. DEAD lines name the"
+                echo "file and its host; SKIP lines were not reached before the time limit."
+                echo "Fix a wrong address in the channel's manifest. If the host was only slow"
+                echo "today, re-run this job. If you have played these addresses yourself and they"
+                echo "work, write the words: streams checked by hand"
+                echo "in the pull request's description; this check then runs again and passes."
+                echo "Phones would show a spinner for any address that really is dead." ;;
+              *)
+                echo
+                echo "The stream check itself went wrong (exit status $status), so nothing is"
+                echo "known about the addresses. Read the log above." ;;
+            esac
+          } | tee -a /tmp/streams_report.txt
           exit "$status"
 
       # The report is also shown on the run's summary page, so the owner can

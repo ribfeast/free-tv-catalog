@@ -64,6 +64,13 @@ a hand edit is how a whole catalogue once shipped unreadable. The path is:
    merge, the push to main runs the check once more; it cannot see the
    description, so it reports the drop as a warning rather than refusing it —
    the pull request was the gate.)
+
+   If the test-play calls an address `DEAD` (or `SKIP`: not reached in time)
+   but you have played it yourself and it works — some hosts refuse GitHub's
+   computers while serving phones normally — write the words
+   `streams checked by hand` in the description. The check runs again, still
+   lists every address it could not play, and passes. Nobody can bypass the
+   check any other way, the owner included.
 5. **Merge — the owner does this.** Merging is the deploy. Afterwards the
    `published` job (Actions tab, on the merge) waits until the live address
    serves the new `version`, and goes green when it does. To look yourself:
@@ -212,6 +219,14 @@ read its **Check** before going on.
    If it goes red, press **Details** — the report says why. Forgot `drop
    intended`? Edit the description; the check runs again by itself.
 
+   If the only red lines are `DEAD` or `SKIP` addresses, they are addresses
+   the good list already had — perhaps the very ones the bad change replaced
+   because they had died. Try one or two yourself (paste the address into VLC
+   or a web browser). If they play, or if undoing the bad change matters more
+   right now, write the words `streams checked by hand` in the description.
+   The check runs again, still lists them, and passes. Replace any that
+   really are dead afterwards, with a normal change.
+
 8. Merge: **Merge pull request**, then **Confirm merge** — only with the green
    tick. Then, back in the same PowerShell window:
 
@@ -282,11 +297,16 @@ reported as a broken file, not as a broken checker.)
 
 A pull request's check then **test-plays the addresses the change adds** —
 only those, compared with main — with `check-streams.sh` (see *The weekly
-stream sweep*): 60 seconds allowed per request, one retry, four at a time. It
-runs `tools/network_checks_selftest.dart` first, which serves a working video,
-a missing one, one that never answers, a stream with a dead picture and more
-from a small web server on the runner itself, and insists the stream check
-(and the `published` check) say the right thing about each.
+stream sweep*): 60 seconds allowed per request, one retry, four at a time. A
+live address that redirects is followed, as players do. After 25 minutes no
+new address is started; any not reached are listed as `SKIP` and, like a
+`DEAD` one, turn the check red — unless the description says
+`streams checked by hand` (see step 4 above). It runs
+`tools/network_checks_selftest.dart` first, which serves a working video, a
+missing one, one that never answers, a stream with a dead picture, addresses
+that redirect and more from a small web server on the runner itself, and
+insists the stream check (and the `published` check) say the right thing
+about each.
 
 **Not checked** (so nobody assumes it is): whether an address that was already
 in the file *still* plays (the weekly sweep does that), whether a test-played
@@ -333,8 +353,8 @@ Each dead address is reported with the reason (`HTTP 404`, `host not found`,
 addresses per host: when one host has many, the host is the problem (slow or
 down), not the addresses. `bash check-streams.sh --new-since <other file>`
 checks only the addresses that are not in the other file — that is what a pull
-request's check runs — and `--timeout`, `--retries` and `--jobs` are explained
-at the top of the script.
+request's check runs — and `--timeout`, `--retries`, `--jobs`, `--time-limit`
+and `--checked-by-hand` are explained at the top of the script.
 
 **GitHub disables scheduled workflows on a public repository after 60 days with
 no commits or pull requests.** This repository can easily go two months without

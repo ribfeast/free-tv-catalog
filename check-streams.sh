@@ -14,18 +14,30 @@
 #   --retries N      before calling an address dead, try it N more times,
 #                    2 seconds apart (default 0)
 #   --jobs N         how many addresses to try at the same time (default 1)
+#   --time-limit S   start no new address once S seconds have passed; the rest
+#                    are reported as SKIP, not tried (default 0: no limit).
+#                    Addresses already started are finished, so a run can
+#                    overrun S by about 2 x timeout x (retries + 1).
+#   --checked-by-hand
+#                    still try and report every address, but let the run pass
+#                    when some did not play or were not tried: a person has
+#                    checked them. The pull-request check adds this when the
+#                    description says "streams checked by hand". It never
+#                    passes a run that went wrong (status 2).
 #
-# Exit status: 0 every address played, 1 at least one did not, 2 the check
-# itself went wrong, 64 the command was typed wrong.
+# Exit status: 0 every address played (or --checked-by-hand accepted the
+# rest), 1 at least one did not, 2 the check itself went wrong, 3 none was
+# dead but the time limit left some untried, 64 the command was typed wrong.
 #
-# Every result line starts with OK or DEAD, then the file's name, then what
-# happened. A DEAD line ends with [host ...]: the server that failed. The
+# Every result line starts with OK, DEAD or SKIP, then the file's name, then
+# what happened. A DEAD line ends with [host ...]: the server that failed. The
 # summary counts dead addresses per host, because when a whole host is down or
 # slow, the host is the thing to fix (or to re-host from). The weekly workflow
 # counts lines starting with DEAD, so nothing else may start with that word.
 #
 # The pull-request check (.github/workflows/validate.yml) runs
 #   --new-since <main's catalog.json> --timeout 60 --retries 1 --jobs 4
+#   --time-limit 1500
 # and tools/network_checks_selftest.dart proves, on every pull request, that
 # this script still tells a dead address from a live one.
 #
@@ -60,24 +72,29 @@ BASE=""
 TIMEOUT=30
 RETRIES=0
 JOBS=1
+TIME_LIMIT=0
+BY_HAND=0
 
 usage() {
   echo "usage: bash check-streams.sh [--catalog FILE] [--new-since BASE.json]" \
-       "[--timeout S] [--retries N] [--jobs N]" >&2
+       "[--timeout S] [--retries N] [--jobs N] [--time-limit S]" \
+       "[--checked-by-hand]" >&2
   exit 64
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --catalog)   [ $# -ge 2 ] || usage; CATALOG=$2; shift 2 ;;
-    --new-since) [ $# -ge 2 ] || usage; BASE=$2; shift 2 ;;
-    --timeout)   [ $# -ge 2 ] || usage; TIMEOUT=$2; shift 2 ;;
-    --retries)   [ $# -ge 2 ] || usage; RETRIES=$2; shift 2 ;;
-    --jobs)      [ $# -ge 2 ] || usage; JOBS=$2; shift 2 ;;
+    --catalog)    [ $# -ge 2 ] || usage; CATALOG=$2; shift 2 ;;
+    --new-since)  [ $# -ge 2 ] || usage; BASE=$2; shift 2 ;;
+    --timeout)    [ $# -ge 2 ] || usage; TIMEOUT=$2; shift 2 ;;
+    --retries)    [ $# -ge 2 ] || usage; RETRIES=$2; shift 2 ;;
+    --jobs)       [ $# -ge 2 ] || usage; JOBS=$2; shift 2 ;;
+    --time-limit) [ $# -ge 2 ] || usage; TIME_LIMIT=$2; shift 2 ;;
+    --checked-by-hand) BY_HAND=1; shift ;;
     *) usage ;;
   esac
 done
-for n in "$TIMEOUT" "$RETRIES" "$JOBS"; do
+for n in "$TIMEOUT" "$RETRIES" "$JOBS" "$TIME_LIMIT"; do
   case "$n" in ''|*[!0-9]*) usage ;; esac
 done
 { [ "$TIMEOUT" -ge 1 ] && [ "$JOBS" -ge 1 ]; } || usage
@@ -90,7 +107,7 @@ done
 WORK=$(mktemp -d) || exit 2
 trap 'rm -rf "$WORK"' EXIT
 UA="Mozilla/5.0"
-export TIMEOUT RETRIES UA WORK
+export TIMEOUT RETRIES UA WORK TIME_LIMIT
 
 # Every playable address in a catalogue file: direct streams and
 # scheduled-item files, once each, in a fixed order.
@@ -197,23 +214,32 @@ probe_once() {
 # every job has finished (jobs run side by side, so nothing else is shared).
 probe() {
   local index=$1 url=$2 label host detail first="" try=1 line
+  # For tools/network_checks_selftest.dart ONLY: pretend the probe of address
+  # number N crashed, to prove that a run which loses a result is never read
+  # as a pass. Nothing else sets this variable.
+  [ "${CHECK_STREAMS_SELFTEST_CRASH_AT:-}" = "$index" ] && exit 255
   label=$(basename "${url%%\?*}" | cut -c1-46)
   host=$(printf '%s' "$url" | sed -E 's#^[A-Za-z]+://([^/?#]*).*#\1#; s#.*@##; s#:[0-9]*$##')
-  while :; do
-    if detail=$(probe_once "$url" "$WORK/playlist.$index"); then
-      [ "$try" -gt 1 ] && detail="$detail - played on try $try, after: $first"
-      line=$(printf 'OK    %-46s %s' "$label" "$detail")
-      break
-    fi
-    [ -z "$first" ] && first=$detail
-    if [ "$try" -gt "$RETRIES" ]; then
-      [ "$try" -gt 1 ] && detail="$detail (tried $try times)"
-      line=$(printf 'DEAD  %-46s %s  [host %s]' "$label" "$detail" "$host")
-      break
-    fi
-    try=$((try + 1))
-    sleep 2
-  done
+  if [ "$TIME_LIMIT" -gt 0 ] && [ $(( $(date +%s) - START )) -ge "$TIME_LIMIT" ]; then
+    line=$(printf 'SKIP  %-46s not tried: the %s s time limit ran out' \
+             "$label" "$TIME_LIMIT")
+  else
+    while :; do
+      if detail=$(probe_once "$url" "$WORK/playlist.$index"); then
+        [ "$try" -gt 1 ] && detail="$detail - played on try $try, after: $first"
+        line=$(printf 'OK    %-46s %s' "$label" "$detail")
+        break
+      fi
+      [ -z "$first" ] && first=$detail
+      if [ "$try" -gt "$RETRIES" ]; then
+        [ "$try" -gt 1 ] && detail="$detail (tried $try times)"
+        line=$(printf 'DEAD  %-46s %s  [host %s]' "$label" "$detail" "$host")
+        break
+      fi
+      try=$((try + 1))
+      sleep 2
+    done
+  fi
   printf '%s\n' "$line" | tee "$WORK/result.$(printf '%06d' "$index")"
   case "$line" in DEAD*) return 1 ;; esac
   return 0
@@ -222,6 +248,8 @@ export -f curl_reason probe_once probe
 
 # Numbered, NUL-separated, so an address can never be split or re-quoted on
 # its way through xargs.
+START=$(date +%s)
+export START
 i=0
 while IFS= read -r url; do
   i=$((i + 1))
@@ -238,13 +266,29 @@ fi
 
 cat "$WORK"/result.* > "$WORK/results"
 dead=$(grep -c '^DEAD' "$WORK/results")
+skipped=$(grep -c '^SKIP' "$WORK/results")
 echo
-if [ "$dead" -eq 0 ]; then
+if [ "$dead" -eq 0 ] && [ "$skipped" -eq 0 ]; then
   echo "All $total address(es) played."
   exit 0
 fi
-echo "$dead of $total address(es) did not play. Dead addresses by host:"
-sed -n -E 's/^DEAD.*\[host ([^]]*)\]$/\1/p' "$WORK/results" \
-  | LC_ALL=C sort | uniq -c | sort -rn \
-  | while read -r n h; do printf '  %-40s %s dead\n' "$h" "$n"; done
-exit 1
+status=3
+if [ "$dead" -gt 0 ]; then
+  status=1
+  echo "$dead of $total address(es) did not play. Dead addresses by host:"
+  sed -n -E 's/^DEAD.*\[host ([^]]*)\]$/\1/p' "$WORK/results" \
+    | LC_ALL=C sort | uniq -c | sort -rn \
+    | while read -r n h; do printf '  %-40s %s dead\n' "$h" "$n"; done
+fi
+if [ "$skipped" -gt 0 ]; then
+  echo "$skipped of $total address(es) were not tried: the $TIME_LIMIT s time" \
+       "limit ran out first, so nothing is known about them."
+fi
+if [ "$BY_HAND" -eq 1 ]; then
+  echo
+  echo "ACCEPTED: a person says these addresses were checked by hand" \
+       "(--checked-by-hand), so this run passes. Any of them that really is" \
+       "dead will show viewers a spinner."
+  exit 0
+fi
+exit "$status"
