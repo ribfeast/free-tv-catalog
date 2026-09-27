@@ -46,7 +46,8 @@ permissions:
 jobs:
   sweep:
     runs-on: ubuntu-latest
-    # ~340 addresses, each with a 25-30 s timeout: a bad day is long.
+    # ~340 addresses, one at a time, each with a 30 s timeout and no retry
+    # (check-streams.sh's defaults): a bad day is long.
     timeout-minutes: 240
     permissions:
       contents: read
@@ -86,7 +87,8 @@ jobs:
               echo "(exit status $STATUS). Full log: $RUN_URL"
               echo
               echo "A dead address shows viewers a spinner that never ends. Each line below"
-              echo "names the FILE, not the channel: search catalog.json for the name to find"
+              echo "names the FILE and, at the end, its host - not the channel. When one host"
+              echo "has many dead files, the host is the problem. Search catalog.json for the name to find"
               echo "which channel it belongs to. Fix it in that channel's manifest and"
               echo "publish through a pull request (see README.md)."
               echo
