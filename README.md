@@ -10,13 +10,18 @@ phones that have already fetched it.
 > on first launch and offline. This hosted file is what lets channels change
 > **after** the app is published.
 
-Two things guard the file:
+Three things guard the file:
 
 - **`validate`** — a check that runs on every pull request (again whenever its
   description is edited) and on every push to main
   (`.github/workflows/validate.yml`). It refuses a file the app could read
-  wrongly and shouts about changes that move what is on air. Once the merge lock
-  below is switched on, GitHub greys out the Merge button until it passes.
+  wrongly, shouts about changes that move what is on air, and on a pull request
+  **test-plays every stream address the change adds**. The merge lock (below)
+  greys out the Merge button until it passes.
+- **`published`** — after every merge, a job in the same workflow asks the live
+  address every 20 seconds, for up to 10 minutes, until it serves the merged
+  `version`. Green means phones are being given the new list; red says plainly
+  that they are not yet.
 - **`streams`** — a weekly sweep of every address in the file
   (`.github/workflows/streams.yml`). When a stream is dead it opens (or updates)
   a GitHub issue titled *"Dead streams found by the weekly sweep"*.
@@ -37,26 +42,38 @@ a hand edit is how a whole catalogue once shipped unreadable. The path is:
    than 2 items.
 3. **Branch.** In *this* repo, on a new branch (never main): replace the
    channel's entry in `catalog.json` with the emitted one and **raise `version`
-   by one**. Run the checker yourself before pushing:
+   by one**. Run the checker yourself before pushing, comparing with the file
+   phones are reading now (in PowerShell; the download keeps the file's bytes
+   exactly as they are, which `git show ... > file` in PowerShell 5.1 does not):
 
    ```
-   dart tools/validate_catalog.dart catalog.json <a copy of main's catalog.json>
+   Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/ribfeast/free-tv-catalog/refs/heads/main/catalog.json -OutFile "$env:TEMP\live-catalog.json"
+   dart tools/validate_catalog.dart catalog.json "$env:TEMP\live-catalog.json"
    ```
 
    (Dart comes with Flutter: `C:\Users\james\flutter\bin\dart`.) Read its
    summary — channel and item counts, hours per channel, what changed.
 4. **Pull request.** Push the branch and open a pull request. The `validate`
-   check runs; its report is on the run's summary page. If the change removes
-   a channel or a big share of one channel's items, or raises a channel's
-   `requires`, **on purpose**, write the words `drop intended` in the pull
-   request description, or the check refuses it. Editing the description is enough — the check runs again by itself, no
-   new commit needed. (After the merge, the push to main runs the check once
-   more; it cannot see the description, so it reports the drop as a warning
-   rather than refusing it — the pull request was the gate.)
-5. **Merge — the owner does this.** Merging is the deploy. Afterwards, fetch the
-   live address and confirm it serves the new `version`:
-   `https://raw.githubusercontent.com/ribfeast/free-tv-catalog/refs/heads/main/catalog.json`
-   (it can lag a few minutes). Until that number is seen, nothing has been
+   check runs; its report is on the run's summary page, including the
+   test-play of every address the change adds (each is tried twice, a minute
+   allowed each time; a dead one is named with its host). If the change
+   removes a channel or a big share of one channel's items, or raises a
+   channel's `requires`, **on purpose**, write the words `drop intended` in the
+   pull request description, or the check refuses it. Editing the description
+   is enough — the check runs again by itself, no new commit needed. (After the
+   merge, the push to main runs the check once more; it cannot see the
+   description, so it reports the drop as a warning rather than refusing it —
+   the pull request was the gate.)
+5. **Merge — the owner does this.** Merging is the deploy. Afterwards the
+   `published` job (Actions tab, on the merge) waits until the live address
+   serves the new `version`, and goes green when it does. To look yourself:
+
+   ```
+   dart tools/live_version.dart
+   ```
+
+   prints the version the live address serves right now (it can lag up to 5
+   minutes behind a merge). Until that number is seen, nothing has been
    published — two channels once sat finished on a branch for 13 days.
 6. **Seed.** Copy the merged file over the app's bundled seed
    (`app/assets/free_tv_catalog.json`) so a fresh install starts with the same
@@ -106,10 +123,19 @@ checker that has quietly stopped checking is worse than none, because its tick
 goes on being believed. (It runs *after* the checker so that a broken file is
 reported as a broken file, not as a broken checker.)
 
-**Not checked** (so nobody assumes it is): whether an address actually plays
-(the weekly sweep does that), whether `seconds` is the file's true length (that
-is the curator's job, with `ffprobe`), and whether the rights are what the
-credit says (that is the manifest).
+A pull request's check then **test-plays the addresses the change adds** —
+only those, compared with main — with `check-streams.sh` (see *The weekly
+stream sweep*): 60 seconds allowed per request, one retry, four at a time. It
+runs `tools/network_checks_selftest.dart` first, which serves a working video,
+a missing one, one that never answers, a stream with a dead picture and more
+from a small web server on the runner itself, and insists the stream check
+(and the `published` check) say the right thing about each.
+
+**Not checked** (so nobody assumes it is): whether an address that was already
+in the file *still* plays (the weekly sweep does that), whether a test-played
+video is the right video, whether `seconds` is the file's true length (that is
+the curator's job, with `ffprobe`), and whether the rights are what the credit
+says (that is the manifest).
 
 ## Turn on the merge lock — the owner's one-time clicks
 
@@ -144,6 +170,14 @@ a red `validate`. Close it without merging.
 master from a CDN's cache while everything behind it is gone, and four channels
 once sat dead here for exactly that reason. Run it yourself before publishing a
 change; the `streams` workflow runs it every Monday.
+
+Each dead address is reported with the reason (`HTTP 404`, `host not found`,
+`no answer within 30 s`, ...) and its host, and the summary counts dead
+addresses per host: when one host has many, the host is the problem (slow or
+down), not the addresses. `bash check-streams.sh --new-since <other file>`
+checks only the addresses that are not in the other file — that is what a pull
+request's check runs — and `--timeout`, `--retries` and `--jobs` are explained
+at the top of the script.
 
 **GitHub disables scheduled workflows on a public repository after 60 days with
 no commits or pull requests.** This repository can easily go two months without
