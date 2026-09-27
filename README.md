@@ -47,9 +47,9 @@ a hand edit is how a whole catalogue once shipped unreadable. The path is:
    summary — channel and item counts, hours per channel, what changed.
 4. **Pull request.** Push the branch and open a pull request. The `validate`
    check runs; its report is on the run's summary page. If the change removes
-   a channel or a big share of one channel's items **on purpose**, write the
-   words `drop intended` in the pull request description, or the check refuses
-   it. Editing the description is enough — the check runs again by itself, no
+   a channel or a big share of one channel's items, or raises a channel's
+   `requires`, **on purpose**, write the words `drop intended` in the pull
+   request description, or the check refuses it. Editing the description is enough — the check runs again by itself, no
    new commit needed. (After the merge, the push to main runs the check once
    more; it cannot see the description, so it reports the drop as a warning
    rather than refusing it — the pull request was the gate.)
@@ -87,9 +87,11 @@ header comment. It fails on:
   is turned round: **every** item needs a credit unless its channel is on that
   list, and adding a channel to the list is a rights decision made in its own
   pull request;
+- a `requires` that is not a whole number of 1 or more (see *The format*);
 - `version` not going up when the file changed;
-- a channel removed, or a channel losing more than a fifth of its items, unless
-  the pull request says `drop intended`.
+- a channel removed, a channel losing more than a fifth of its items, or a
+  channel whose `requires` goes up (older app builds stop showing it, which to
+  them is a removal), unless the pull request says `drop intended`.
 
 It **warns, without failing**, when an existing channel's epoch changes or its
 items are reordered, inserted or re-timed. Those are legitimate — but an
@@ -183,7 +185,8 @@ video hosts may answer GitHub's servers differently from a home connection.
       "id": "apple_test",
       "name": "Apple Test",
       "category": "Test",
-      "streamUrl": "https://…/master.m3u8"
+      "streamUrl": "https://…/master.m3u8",
+      "requires": 2                 // optional; see below
     }
   ]
 }
@@ -193,6 +196,20 @@ A channel has **either** a `streamUrl` **or** a `kind: "scheduled"` with a
 `schedule` — never both. Everyone sees the same programme at the same time
 because each phone works out what is on air from `epoch`, the item lengths and
 the clock; there is no streaming server.
+
+**`requires`** (optional, on a channel) is the lowest *catalogue feature level*
+an app build must have to show the channel. Each app build knows its own level
+(`catalogueFeatureLevel`, 1 today) and **skips any channel whose `requires` is
+higher**. Leave it out when every build can show the channel. It exists because
+this one file is read by every app version ever installed: when a new build
+learns something new about the file (the way `aspect` was added — a build that
+ignores it draws some clips squashed), that build goes up a level, and a channel
+that is only right with the new understanding gets `"requires": 2`, so older
+phones leave it out instead of showing it wrong. Two limits: builds made
+*before* the field existed do not read it and show the channel anyway (no store
+build has shipped yet, so every store build will read it); and raising it on a
+channel that is already live takes that channel away from every older build,
+so the check treats it as a drop.
 
 ## ⚠️ Only add channels we are allowed to redistribute
 

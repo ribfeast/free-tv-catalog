@@ -193,6 +193,24 @@ void _run() {
   _expect('a schedule without kind: scheduled',
       _edit((c) => _cc(c).remove('kind')),
       saying: '"kind" must be "scheduled"');
+  // "requires" names the lowest app feature level that can show a channel.
+  // Every refusal below is made by the same line of the checker, so each case
+  // pins the value it planted, as the two "seconds" cases do.
+  _expect('"requires": 0', _edit((c) => _stream(c)['requires'] = 0),
+      saying: '"requires" must be a whole number, 1 or more (found: 0)');
+  _expect('"requires" written as text', _edit((c) => _stream(c)['requires'] = '2'),
+      saying: '"requires" must be a whole number, 1 or more (found: "2")');
+  _expect('"requires" with a decimal point',
+      _edit((c) => _stream(c)['requires'] = 1.5),
+      saying: '"requires" must be a whole number, 1 or more (found: 1.5)');
+  _expect('"requires": null', _edit((c) => _stream(c)['requires'] = null),
+      saying: '"requires" must be a whole number, 1 or more (found: null)');
+  _expect('"requires": 1 is read, not warned about as a typo',
+      _edit((c) => _stream(c)['requires'] = 1),
+      pass: true, notSaying: 'does not read "requires"');
+  _expect('"requires": 2 is allowed, and the report says who cannot see it',
+      _edit((c) => _stream(c)['requires'] = 2),
+      pass: true, saying: 'needs app feature level 2');
 
   stdout.writeln('\nDamage to a schedule:');
   _expect('an epoch that does not parse',
@@ -255,12 +273,33 @@ void _run() {
   });
   _expect('a channel losing 40% of its items without saying so', itemsGone,
       base: good, saying: 'falls from');
+  // Raising "requires" on a channel people already watch takes it away from
+  // every app build below the new level - to them it is a removal.
+  final hiddenFromOldBuilds = _edit((c) {
+    _bump(c);
+    _stream(c)['requires'] = 2;
+  });
+  _expect('a channel raised to "requires": 2 without saying so',
+      hiddenFromOldBuilds, base: good,
+      saying: 'now needs app feature level 2 (was 1)');
 
   stdout.writeln('\nCompared with the live file - allowed, but shouted about:');
   _expect('the same removals WITH --allow-drop', channelGone,
       base: good, flags: ['--allow-drop'], pass: true, saying: 'is REMOVED');
   _expect('the same item loss WITH --allow-drop', itemsGone,
       base: good, flags: ['--allow-drop'], pass: true, saying: 'REMOVED');
+  _expect('the same "requires" rise WITH --allow-drop', hiddenFromOldBuilds,
+      base: good, flags: ['--allow-drop'], pass: true,
+      saying: 'now needs app feature level 2 (was 1)');
+  _expect('a NEW channel with "requires": 2 is not a drop', _edit((c) {
+    _bump(c);
+    final copy = jsonDecode(jsonEncode(_stream(c))) as Json
+      ..['id'] = 'selftest_needs_level_2'
+      ..['name'] = 'Needs level 2'
+      ..['streamUrl'] = 'https://example.org/level2/master.m3u8'
+      ..['requires'] = 2;
+    (c['channels'] as List).add(copy);
+  }), base: good, pass: true, saying: 'needs app feature level 2');
   _expect('an epoch change', _edit((c) {
     _bump(c);
     (_cc(c)['schedule'] as Json)['epoch'] = '2031-05-05T00:00:00Z';
@@ -306,7 +345,8 @@ List<int> _edit(void Function(Json catalogue) damage) {
 
 /// Runs the checker on [bytes]. Unless [pass] is set the file must be REFUSED
 /// (exit code 1), and either way the output must contain [saying] - so a copy
-/// refused for the wrong reason still counts as a broken rule.
+/// refused for the wrong reason still counts as a broken rule. [notSaying] is
+/// for a field the checker must READ: it may not be warned about as a typo.
 void _expect(
   String name,
   List<int> bytes, {
@@ -314,6 +354,7 @@ void _expect(
   List<String> flags = const [],
   bool pass = false,
   String? saying,
+  String? notSaying,
 }) {
   _caseNumber++;
   final file = File('${_temp.path}/case_$_caseNumber.json')
@@ -338,6 +379,8 @@ void _expect(
       'exit code ${result.exitCode}, expected $wantCode',
     if (saying != null && !output.contains(saying))
       'the output never said "$saying"',
+    if (notSaying != null && output.contains(notSaying))
+      'the output said "$notSaying"',
   ];
   final verb = pass ? 'allows ' : 'refuses';
   if (problems.isEmpty) {

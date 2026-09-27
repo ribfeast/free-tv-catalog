@@ -74,6 +74,25 @@
 //
 //   "aspect"/"year": nonsense is ignored.       FAILS on nonsense.
 //
+//   "requires" on a channel: the lowest         Optional. When present it must be
+//   "catalogue feature level" that can show     a whole number, 1 or more, written
+//   it. A build skips a channel whose           as a number; anything else FAILS
+//   "requires" is HIGHER than its own           (0, "2", 1.5, null), so what a
+//   catalogueFeatureLevel (1 today; the         build does with a nonsense value
+//   code is on app branch                       is never relied on. The report
+//   app/build-line-and-catalogue). Builds       names every channel above level 1.
+//   made BEFORE that change do not read the     Raising it on a channel that is
+//   field at all and SHOW the channel, so it    already live counts as a DROP:
+//   only protects builds from that change       builds below the new level lose
+//   on - which is every store build, since      the channel, exactly as if it
+//   none has shipped yet.                       were removed ("drop intended").
+//
+//   HOW TO USE IT: when a new app build learns to read something new in this
+//   file (the way "aspect" was added - a build that ignores it draws
+//   anamorphic clips squashed), that build raises catalogueFeatureLevel to 2,
+//   and any channel that is only right when that thing is understood gets
+//   "requires": 2. Older builds then leave it out instead of showing it wrong.
+//
 // NOT CHECKED HERE (so nobody assumes it is):
 //  * whether an address actually plays - check-streams.sh does that, weekly;
 //  * whether "seconds" is the file's true length. A wrong value shifts every
@@ -112,7 +131,7 @@ const suspiciouslyLongSeconds = 4 * 60 * 60;
 const _topKeys = {'version', 'updated', '_comment', 'channels'};
 const _channelKeys = {
   'id', 'name', 'category', 'kind', 'schedule', 'streamUrl', 'logoUrl',
-  'epgId', '_comment', //
+  'epgId', 'requires', '_comment', //
 };
 const _scheduleKeys = {'epoch', 'items'};
 const _itemKeys = {
@@ -142,6 +161,9 @@ class Chan {
   String? epochText;
   DateTime? epoch;
   bool scheduled = false;
+
+  /// The lowest app feature level that shows this channel (1 = every build).
+  int requires = 1;
   final items = <Item>[];
 
   int get totalSeconds => items.fold(0, (sum, i) => sum + i.seconds);
@@ -303,6 +325,20 @@ Chan? _checkChannel(Object? raw, int index, Set<String> seenIds, Findings f) {
   _unknownKeys(raw, _channelKeys, where, f);
 
   final chan = Chan(id is String ? id.trim() : '', name is String ? name : '');
+
+  // containsKey, not `!= null`: a "requires": null that is present is refused
+  // like any other value that is not a whole number.
+  if (raw.containsKey('requires')) {
+    final requires = raw['requires'];
+    if (requires is int && requires >= 1) {
+      chan.requires = requires;
+    } else {
+      f.failures.add('$where: "requires" must be a whole number, 1 or more '
+          '(found: ${jsonEncode(requires)}). It is the lowest app feature '
+          'level that can show this channel; leave it out when every build '
+          'can.');
+    }
+  }
 
   final stream = raw['streamUrl'];
   final schedule = raw['schedule'];
@@ -502,6 +538,12 @@ void compare(
       drops.add('Channel "${old.id}" falls from ${old.items.length} to '
           '${chan.items.length} items.');
     }
+    if (chan.requires > old.requires) {
+      drops.add('Channel "${old.id}" (${old.name}) now needs app feature '
+          'level ${chan.requires} (was ${old.requires}). App builds below '
+          'level ${chan.requires} stop showing it, exactly as if it were '
+          'removed, and their favourites of it go with it.');
+    }
     _compareChannel(old, chan, f);
   }
   for (final chan in current.channels) {
@@ -623,13 +665,15 @@ void report(
           '${current.channels.length} channels  |  $items scheduled items')
       ..writeln();
     for (final c in current.channels) {
-      out.writeln(c.scheduled
+      out.writeln('${c.scheduled
           ? '  ${c.id.padRight(14)} ${c.name.padRight(16)} '
               '${c.items.length.toString().padLeft(4)} items  '
               '${c.hours.padLeft(5)} h  from ${c.epochText ?? '?'}'
               '${publicDomainChannelIds.contains(c.id) ? '  (public domain: '
                   'no credits needed)' : ''}'
-          : '  ${c.id.padRight(14)} ${c.name.padRight(16)} live stream');
+          : '  ${c.id.padRight(14)} ${c.name.padRight(16)} live stream'}'
+          '${c.requires > 1 ? '  (needs app feature level ${c.requires}: '
+              'builds below it do not show this channel)' : ''}');
     }
     out.writeln();
   }
