@@ -94,7 +94,8 @@
 //   "requires": 2. Older builds then leave it out instead of showing it wrong.
 //
 // NOT CHECKED HERE (so nobody assumes it is):
-//  * whether an address actually plays - check-streams.sh does that, weekly;
+//  * whether an address actually plays - check-streams.sh does that: every
+//    pull request for the addresses it adds, and the weekly sweep for all;
 //  * whether "seconds" is the file's true length. A wrong value shifts every
 //    later programme for every viewer. It must come from ffprobe (a free tool
 //    that reads a video file's true length) or the source's own API when the
