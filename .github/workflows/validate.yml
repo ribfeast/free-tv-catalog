@@ -1,21 +1,35 @@
-# Checks every change to catalog.json BEFORE it can reach the app.
+# Checks every change to catalog.json BEFORE it can reach the app, and
+# confirms AFTER a merge that the app is actually being given it.
 #
 # Merging to main here is a release: every phone re-reads catalog.json within
 # minutes, and a broken file is read as "no channels" (that happened once, from
 # an invisible marker PowerShell put at the start of the file). This workflow
 # runs tools/validate_catalog.dart on every pull request and on every push to
-# main, and GitHub can be told to grey out the Merge button until it has
-# passed - see README.md, "Turn on the merge lock", for the owner's one-time
-# clicks.
+# main, and GitHub greys out the Merge button until it has passed (the branch
+# rule on main requires the "validate" check - see README.md, "Turn on the
+# merge lock").
+#
+# On a pull request it also TEST-PLAYS every stream address the change adds
+# (the ones not already in main's catalog.json) with check-streams.sh - the
+# same script the weekly sweep uses - so a mistyped address is refused before
+# it ships as a spinner, instead of being found up to a week later.
+#
+# After a merge, the separate "published" job waits until the live address
+# serves the merged "version". That is what "published" means (the app repo's
+# CLAUDE.md, Testing rules): the live address was fetched and served it.
 #
 # The pull-request run repeats when the description is EDITED (see the
 # trigger below). Nothing runs on a push to any other branch: the pull
 # request already covers it, and a push-only run has no pull-request
 # description to read, so the "drop intended" rule would go red with no way
-# to clear it.
+# to clear it. The description can say two things, each a way past a red
+# that is known to be wrong: "drop intended" (a channel or items removed on
+# purpose) and "streams checked by hand" (the test-play's DEAD or SKIP lines
+# are wrong - see that step).
 #
-# The job is called "validate" on purpose: that is the name to pick in the
+# The job is called "validate" on purpose: that is the name picked in the
 # branch-protection settings. Rename it and the lock silently stops applying.
+# Everything that must gate a merge therefore lives in that one job.
 #
 # Safety notes for anyone editing this file:
 #  * The workflow can only READ the repository (permissions below). It needs
@@ -23,8 +37,10 @@
 #  * It runs on `pull_request`, never `pull_request_target`. The latter runs
 #    with write access on code from a stranger's fork, which is how public
 #    repos get their tokens taken.
-#  * Third-party actions are pinned to a commit SHA, not a tag. A tag can be
-#    moved to point at different code; a SHA cannot.
+#  * Third-party actions are pinned to a commit SHA, not a tag - the
+#    repository refuses anything else. A tag can be moved to point at
+#    different code; a SHA cannot. .github/dependabot.yml proposes updates
+#    once a month.
 #  * The pull-request description is read through an environment variable,
 #    never pasted into the script, so text in it cannot run as commands.
 
@@ -46,7 +62,12 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Most runs take a minute or two. The long tail is test-playing a new
+    # channel from a slow host: one host measured on 2026-09-19 took 12-20 s
+    # just to open each connection, and a channel can have 150 files. The
+    # test-play starts no new address after 25 minutes, and its step is
+    # allowed 35.
+    timeout-minutes: 45
     steps:
       - name: Check out the repository (with history, to find the base file)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -72,15 +93,16 @@ jobs:
       # When there is no base (a brand-new repository) the comparison is
       # skipped and the checker says so in its report.
       #
-      # Removing a channel, or a big share of one channel's items, is refused
-      # unless the pull request says it is meant: the phrase to write in its
-      # description is exactly "drop intended", and editing the description
-      # re-runs this check. A push to main has no description to read (the
-      # pull request that was just merged is not part of a push event), so
-      # the push run passes --allow-drop and reports the drop as a warning:
-      # the pull-request run was the gate, and a red cross on main for a
-      # drop that was approved a minute earlier would only teach the owner
-      # to ignore red crosses.
+      # Removing a channel, a big share of one channel's items, or raising a
+      # channel's "requires" (which hides it from older app builds) is
+      # refused unless the pull request says it is meant: the phrase to write
+      # in its description is exactly "drop intended", and editing the
+      # description re-runs this check. A push to main has no description to
+      # read (the pull request that was just merged is not part of a push
+      # event), so the push run passes --allow-drop and reports the drop as a
+      # warning: the pull-request run was the gate, and a red cross on main
+      # for a drop that was approved a minute earlier would only teach the
+      # owner to ignore red crosses.
       - name: Fetch the version of catalog.json that is live now
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -107,6 +129,11 @@ jobs:
             echo "VALIDATE_FLAGS=--allow-drop" >> "$GITHUB_ENV"
             echo "The pull request says the drop is intended."
           fi
+          if [ "$EVENT_NAME" = "pull_request" ] &&
+             printf '%s' "$PR_BODY" | grep -qi 'streams checked by hand'; then
+            echo "STREAMS_FLAGS=--checked-by-hand" >> "$GITHUB_ENV"
+            echo "The pull request says its new stream addresses were checked by hand."
+          fi
 
       # The report is written to a file and printed afterwards, on purpose, and
       # the step exits with the CHECKER's status. The obvious one-liner,
@@ -132,6 +159,79 @@ jobs:
       - name: Prove the checker still refuses what it says it refuses
         run: dart tools/validate_catalog_selftest.dart catalog.json
 
+      # The same idea for the two network checks: a small web server on the
+      # runner itself (127.0.0.1) plays a working video, a missing one, one
+      # that never answers, a live stream with a dead picture, a lagging live
+      # file and more, and each check must say the right thing about each.
+      # It runs BEFORE the test-play, whose verdict means nothing if the
+      # script behind it has stopped telling dead from alive.
+      - name: Prove the stream check and the publish check still catch failures
+        run: dart tools/network_checks_selftest.dart
+
+      # Only the addresses this pull request ADDS - the rest were checked when
+      # they were added, and the weekly sweep watches them. Generous on
+      # purpose, because a false alarm teaches people to ignore the check:
+      # 60 s per request, one retry 2 s later, 4 addresses at a time. Every
+      # dead address is named with its host. It runs on every pull-request
+      # run, including a description edit, so an edit can never turn a red
+      # test-play green without the addresses being tried again.
+      #
+      # A time limit keeps the verdict inside the step: no new address is
+      # started after 25 minutes (1500 s), and one already started finishes
+      # within about 4 more, well inside the step's 35. Addresses never
+      # reached are listed as SKIP. Without it, a whole channel on a host that
+      # never answers (150 files x 2 tries x 60 s / 4 at a time = 75 minutes)
+      # would be cut off by GitHub with no verdict and nothing to override.
+      #
+      # THE WAY PAST A WRONG VERDICT. This step is part of the required
+      # "validate" check, which nobody can bypass - the owner included - so,
+      # like "drop intended", it has its own words: when the description says
+      # "streams checked by hand", every address is still tried and every
+      # DEAD or SKIP line still printed, and then the step passes. It is for
+      # a host that refuses GitHub's servers but plays on phones, a host too
+      # slow for the time limit, or a rollback that puts back an address the
+      # bad change had replaced. A run in which the check itself went wrong
+      # (exit 2) is never let through.
+      #
+      # The report is shown AS IT RUNS (tee), so the log keeps every result
+      # so far even if GitHub stops the step. As explained above "Validate
+      # catalog.json", a pipeline's own status is tee's, so the script's is
+      # read from PIPESTATUS, with -e off around it.
+      - name: Test-play the stream addresses this pull request adds
+        if: github.event_name == 'pull_request'
+        timeout-minutes: 35
+        run: |
+          args=(--timeout 60 --retries 1 --jobs 4 --time-limit 1500 ${STREAMS_FLAGS:-})
+          : > /tmp/streams_report.txt
+          if [ -n "${BASE_FILE:-}" ]; then
+            args=(--new-since "$BASE_FILE" "${args[@]}")
+          else
+            echo "No base file, so every address counts as new." | tee -a /tmp/streams_report.txt
+          fi
+          set +e
+          bash check-streams.sh "${args[@]}" 2>&1 | tee -a /tmp/streams_report.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          {
+            case "$status" in
+              0) ;;
+              1|3)
+                echo
+                echo "Not every address this change adds was shown to play. DEAD lines name the"
+                echo "file and its host; SKIP lines were not reached before the time limit."
+                echo "Fix a wrong address in the channel's manifest. If the host was only slow"
+                echo "today, re-run this job. If you have played these addresses yourself and they"
+                echo "work, write the words: streams checked by hand"
+                echo "in the pull request's description; this check then runs again and passes."
+                echo "Phones would show a spinner for any address that really is dead." ;;
+              *)
+                echo
+                echo "The stream check itself went wrong (exit status $status), so nothing is"
+                echo "known about the addresses. Read the log above." ;;
+            esac
+          } | tee -a /tmp/streams_report.txt
+          exit "$status"
+
       # The report is also shown on the run's summary page, so the owner can
       # read "what changed" and any on-air warnings without opening the log.
       - name: Publish the report on the run's summary page
@@ -141,4 +241,35 @@ jobs:
             echo '```'
             cat /tmp/validate_report.txt 2>/dev/null || echo "(the checker produced no report)"
             echo '```'
+            if [ -f /tmp/streams_report.txt ]; then
+              echo
+              echo 'Test-play of the addresses this change adds:'
+              echo
+              echo '```'
+              cat /tmp/streams_report.txt
+              echo '```'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # After a merge: is the live address - the one every phone fetches - serving
+  # the version that was just merged? GitHub's file server keeps a copy for up
+  # to 5 minutes, so this asks every 20 s for up to 10 minutes, then goes red
+  # with a plain message. A later merge that lands first counts as success
+  # (its version is higher). It runs whether or not "validate" passed on main:
+  # a file that reached phones is published either way, and that is the fact
+  # this job reports. It never gates anything - the merge has happened.
+  published:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the merged commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Dart
+        uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+        with:
+          sdk: stable
+
+      - name: Wait until the live address serves this version
+        run: dart tools/live_version.dart --wait-for-file catalog.json --within 600 --every 20

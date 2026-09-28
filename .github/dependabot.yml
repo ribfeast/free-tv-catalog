@@ -1,0 +1,23 @@
+# Keeps the GitHub Actions used by .github/workflows/ up to date.
+#
+# Every action in this repository is pinned to a full commit SHA (a fixed
+# fingerprint of its code) with the release it came from in a comment beside
+# it, like "# v7.0.1". The repository refuses anything else. A pin never moves
+# by itself - that is the point: nobody can swap the code under us - but it
+# also means a security fix never arrives by itself either.
+#
+# So once a month Dependabot (GitHub's own update robot) reads those comments
+# and, when newer releases exist, opens ONE pull request that moves every pin
+# at once, new SHA and new comment together. That pull request runs "validate"
+# like any other and is merged the same way, by the owner, after a green tick.
+# The channel list is untouched by it, so the check has nothing new to test-play.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
